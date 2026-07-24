@@ -9250,6 +9250,10 @@ window.__ddCaseStudy = function (root) {
    is exactly the negative distance from the canvas edge to the screen edge.
    body{overflow-x:hidden} keeps 100vw from creating a scrollbar. */
 @media (min-width: 1901px) {
+  /* .page{overflow:hidden} clips every breakout at the canvas edge; on wide
+     screens the breakouts must escape it. body{overflow-x:hidden} still guards
+     against scrollbars. */
+  .page { overflow: visible; }
   #sec-hero .topbar { background: transparent; border-bottom: 0; }
   #sec-hero .topbar::before {
     content: ''; position: absolute; top: 0; bottom: 0; z-index: -1;
