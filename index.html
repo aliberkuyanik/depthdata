@@ -4434,6 +4434,42 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 })();
 </script>
 </div></div>
+<style id="dd-widebleed">
+/* Displays wider than the 1900px canvas: the case-study model. Content stays
+   in its centred column at true size; only the background LAYERS stretch to
+   the viewport edges. Each breakout uses left:calc((1900px - 100vw)/2), which
+   is exactly the negative distance from the canvas edge to the screen edge.
+   body{overflow-x:hidden} keeps 100vw from creating a scrollbar. */
+@media (min-width: 1901px) {
+  /* .page{overflow:hidden} clips every breakout at the canvas edge; on wide
+     screens the breakouts must escape it. body{overflow-x:hidden} still guards
+     against scrollbars. */
+  .page { overflow: visible; }
+  #sec-hero .topbar { background: transparent; border-bottom: 0; }
+  #sec-hero .topbar::before {
+    content: ''; position: absolute; top: 0; bottom: 0; z-index: -1;
+    left: calc((1900px - 100vw) / 2); width: 100vw;
+    background: rgba(32, 32, 31, 0.8);
+    border-bottom: 0.5px solid rgba(225, 224, 217, 0.3);
+    pointer-events: none;
+  }
+  #sec-hero .hero { background: none; overflow: visible; }
+  #sec-hero .hero::before {
+    content: ''; position: absolute; top: 0; bottom: 0; z-index: -1;
+    left: calc((1900px - 100vw) / 2); width: 100vw;
+    background: linear-gradient(to bottom, #151515 0%, #000000 100%);
+    pointer-events: none;
+  }
+  #sec-hero .hero-texture { left: calc((1900px - 100vw) / 2); width: 100vw; }
+  #sec-dash .band { left: calc((1900px - 100vw) / 2); width: 100vw; }
+  #sec-dash .band-img-a, #sec-dash .band-img-b, #sec-dash .band-noise {
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-size: cover; background-position: center;
+  }
+  /* the brand lockup re-anchors to the centred column, not the widened band */
+  #sec-dash .brand { left: calc(50% - 600px); }
+}
+</style>
 <script>
 (function(){
   var DESIGN_W = 1900;
@@ -9243,41 +9279,5 @@ window.__ddCaseStudy = function (root) {
   tagged.forEach(function (el) { io.observe(el); });
 })();
 </script>
-<style id="dd-widebleed">
-/* Displays wider than the 1900px canvas: the case-study model. Content stays
-   in its centred column at true size; only the background LAYERS stretch to
-   the viewport edges. Each breakout uses left:calc((1900px - 100vw)/2), which
-   is exactly the negative distance from the canvas edge to the screen edge.
-   body{overflow-x:hidden} keeps 100vw from creating a scrollbar. */
-@media (min-width: 1901px) {
-  /* .page{overflow:hidden} clips every breakout at the canvas edge; on wide
-     screens the breakouts must escape it. body{overflow-x:hidden} still guards
-     against scrollbars. */
-  .page { overflow: visible; }
-  #sec-hero .topbar { background: transparent; border-bottom: 0; }
-  #sec-hero .topbar::before {
-    content: ''; position: absolute; top: 0; bottom: 0; z-index: -1;
-    left: calc((1900px - 100vw) / 2); width: 100vw;
-    background: rgba(32, 32, 31, 0.8);
-    border-bottom: 0.5px solid rgba(225, 224, 217, 0.3);
-    pointer-events: none;
-  }
-  #sec-hero .hero { background: none; overflow: visible; }
-  #sec-hero .hero::before {
-    content: ''; position: absolute; top: 0; bottom: 0; z-index: -1;
-    left: calc((1900px - 100vw) / 2); width: 100vw;
-    background: linear-gradient(to bottom, #151515 0%, #000000 100%);
-    pointer-events: none;
-  }
-  #sec-hero .hero-texture { left: calc((1900px - 100vw) / 2); width: 100vw; }
-  #sec-dash .band { left: calc((1900px - 100vw) / 2); width: 100vw; }
-  #sec-dash .band-img-a, #sec-dash .band-img-b, #sec-dash .band-noise {
-    left: 0; top: 0; width: 100%; height: 100%;
-    background-size: cover; background-position: center;
-  }
-  /* the brand lockup re-anchors to the centred column, not the widened band */
-  #sec-dash .brand { left: calc(50% - 600px); }
-}
-</style>
 </body>
 </html>
