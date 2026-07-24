@@ -4447,7 +4447,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
       return;
     }
     page.style.width = DESIGN_W + 'px';
-    var s = Math.min(window.innerWidth, DESIGN_W) / DESIGN_W;
+    var s = window.innerWidth / DESIGN_W;   /* uncapped: on displays wider than 1900 the canvas scales UP to fill the screen, like the case study's full-bleed sections */
     page.style.transform = 'scale(' + s + ')';
     stage.style.height = (page.offsetHeight * s) + 'px';
     stage.style.maxWidth = (DESIGN_W * s) + 'px';
@@ -8964,7 +8964,7 @@ window.__ddCaseStudy = function (root) {
   if (tbar && tnav) {
     var NAV_H = 64, NAV_W = 1900;          // as authored, same constants as index.html
     var fitNav = function () {
-      var s = Math.min(window.innerWidth, NAV_W) / NAV_W;
+      var s = window.innerWidth / NAV_W;
       tbar.style.transform = 'scale(' + s + ')';
       tnav.style.height = Math.round(NAV_H * s) + 'px';
     };
@@ -8984,7 +8984,7 @@ window.__ddCaseStudy = function (root) {
         ftBlock.style.height = '';
         return;
       }
-      var s = Math.min(window.innerWidth, DESIGN_W) / DESIGN_W;
+      var s = window.innerWidth / DESIGN_W;   /* uncapped: on displays wider than 1900 the canvas scales UP to fill the screen, like the case study's full-bleed sections */
       ftInner.style.transformOrigin = 'top center';
       ftInner.style.transform = 'translateX(-50%) scale(' + s + ')';
       // the block's height is authored for s=1; without this the page keeps
