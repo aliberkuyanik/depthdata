@@ -6186,6 +6186,32 @@ No agents to install, no workflow changes, nothing your employees have to do dif
       data.from_name = 'Depthdata landing page';
       data.botcheck = '';
 
+      // The GET-DEMO form provisions portal access: it creates the account +
+      // password in the portal backend, which emails us the password to send
+      // and lists the person on the admin page. Other forms just email us.
+      if (source === 'demo') {
+        submit.disabled = true;
+        say('Sending…');
+        fetch('https://depthdata-demo.vercel.app/api/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name, email: data.email, company: data.company,
+            size: data.size, department: data.department, message: data.message
+          })
+        }).then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (body) {
+            if (!r.ok || !body.ok) throw new Error((body && body.error) || ('HTTP ' + r.status));
+            form.reset();
+            say('Thanks, we will be in touch', 'ok');
+          });
+        }).catch(function (err) {
+          say('Could not send that. Try again, or email us directly', 'err');
+          console.error('[depthdata] demo form: portal provisioning failed.', err);
+        }).then(function () { submit.disabled = false; });
+        return;
+      }
+
       submit.disabled = true;
       say('Sending…');
       fetch(ENDPOINT, {
