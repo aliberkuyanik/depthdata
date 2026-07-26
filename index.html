@@ -9052,5 +9052,6 @@ window.__ddCaseStudy = function (root) {
   tagged.forEach(function (el) { io.observe(el); });
 })();
 </script>
+<script>/*nav-fix*/(function(){document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a.topbar-link");if(!a)return;var href=a.getAttribute("href")||"";if(href==="#case-study")return;if(/\.html($|[#?])/.test(href)||/^https?:\/\//.test(href)){e.preventDefault();e.stopPropagation();window.location.href=href;return;}var dt=a.getAttribute("data-target");if(dt){var el=document.querySelector(dt);if(el){e.preventDefault();e.stopPropagation();var nav=document.getElementById("fixed-nav");var navH=(nav&&nav.offsetHeight)||64;var y=el.getBoundingClientRect().top+window.scrollY-navH-12;window.scrollTo({top:y,behavior:"smooth"});}return;}},true);})();</script>
 </body>
 </html>
