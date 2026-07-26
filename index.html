@@ -7081,7 +7081,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
         <a class="topbar-link" href="#" data-cs-go="#sec-tabs .integrations" data-target="#sec-tabs .integrations">Integrations</a>
         <a class="topbar-link" href="#" data-cs-go="#sec-tabs .tabs-hero" data-target="#sec-tabs .tabs-hero">THE PRODUCT</a>
         <a class="topbar-link" href="#" data-cs-go="#sec-integ .pg" data-target="#sec-integ .pg">How it works</a>
-        <a class="topbar-link" href="#" data-cs-go="#sec-method .meth" data-target="#sec-method .meth">METHODOLOGY</a>
+        <a class="topbar-link" href="methodology.html">METHODOLOGY</a>
         <a class="topbar-link on" aria-current="page">CASE STUDY</a>
         <a class="topbar-link" href="#" data-cs-go="#sec-method .cf" data-target="#sec-method .cf">CONTACT</a>
       </div>
@@ -7810,7 +7810,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
           <!-- Points at the form ON THIS PAGE, not at a modal. The form is
                13 sections down and readers were not finding it. -->
           <a class="btn btn-primary" href="#cs-contact">Get early demo &#8594;</a>
-          <a class="btn btn-secondary" href="#" data-cs-go="#sec-method .meth">Read the methodology</a>
+          <a class="btn btn-secondary" href="methodology.html">Read the methodology</a>
         </div>
       </div>
     </div>
@@ -9052,5 +9052,6 @@ window.__ddCaseStudy = function (root) {
   tagged.forEach(function (el) { io.observe(el); });
 })();
 </script>
+<script>(function(){window.addEventListener("load",function(){var h=location.hash;if(!h||h.length<2||/case/i.test(h))return;var link=document.querySelector('.topbar-link[href="'+h+'"][data-target]');if(!link)return;setTimeout(function(){try{link.click();}catch(e){}},1000);});})();</script>
 </body>
 </html>
