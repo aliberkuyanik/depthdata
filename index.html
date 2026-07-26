@@ -1079,7 +1079,7 @@ a{text-decoration:none;color:inherit}
 
      Unprefixed on purpose, like the rest of this block: the source nav, the
      sticky clone and the case study's lifted copy all read it from here. */
-  .topbar-link { position: relative; isolation: isolate; transition: color .22s cubic-bezier(.16, 1.3, 1); }
+  .topbar-link { position: relative; isolation: isolate; transition: color .22s cubic-bezier(.16, 1, .3, 1); }
   .topbar-link::before {
     content: "";
     position: absolute;
@@ -1088,7 +1088,7 @@ a{text-decoration:none;color:inherit}
     z-index: -1;
     transform: scaleY(0);
     transform-origin: center bottom;
-    transition: transform .32s cubic-bezier(.16, 1.3, 1);
+    transition: transform .32s cubic-bezier(.16, 1, .3, 1);
   }
   .topbar-link:not(.on):hover, .topbar-link:not(.on):focus-visible { color: #161d03; }
   .topbar-link:not(.on):hover::before, .topbar-link:not(.on):focus-visible::before { transform: scaleY(1); }
@@ -4644,7 +4644,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   top: var(--ct, 0px);
   box-sizing: border-box;
   background: #2B2A2C;
-  border: 1px solid rgba(225, 224, 217.3);
+  border: 1px solid rgba(225, 224, 217, .3);
   border-radius: 9px;
   display: flex;
   flex-direction: column;
@@ -4742,7 +4742,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 #sec-data .dd-live .dd-gchip {
   position: absolute; left: 50%; top: 98px; transform: translateX(-50%);
   display: flex; align-items: center; gap: 4px; padding: 2.5px 8px; border-radius: 99px;
-  background: rgba(92, 192, 138.15); border: 1px solid rgba(92, 192, 138.32);
+  background: rgba(92, 192, 138, .15); border: 1px solid rgba(92, 192, 138, .32);
 }
 #sec-data .dd-live .dd-gchip i { width: 4px; height: 4px; border-radius: 50%; background: #5cc08a; display: block; }
 #sec-data .dd-live .dd-gchip span {
@@ -4775,7 +4775,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 #sec-trans .ct-table.ct-drop .ct-row.ct-in {
   opacity: 1;
   transform: none;
-  transition: opacity .5s cubic-bezier(.16, 1.3, 1), transform .55s cubic-bezier(.16, 1.3, 1);
+  transition: opacity .5s cubic-bezier(.16, 1, .3, 1), transform .55s cubic-bezier(.16, 1, .3, 1);
 }
 
 /* The dots land just after their row, so each row reads as settling. */
@@ -4787,7 +4787,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 #sec-trans .ct-table.ct-drop .ct-row.ct-in .ct-state img {
   opacity: 1;
   transform: none;
-  transition: opacity .3s ease-out .18s, transform .35s cubic-bezier(.16, 1.3, 1) .18s;
+  transition: opacity .3s ease-out .18s, transform .35s cubic-bezier(.16, 1, .3, 1) .18s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5391,7 +5391,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   align-items: flex-start;
   gap: 20px;                 /* same as .meth-header and .ct-header */
   padding-bottom: 26px;
-  border-bottom: 1px dashed rgba(225, 224, 217.26);
+  border-bottom: 1px dashed rgba(225, 224, 217, .26);
 }
 
 #sec-method .faq-eyebrow {
@@ -5421,7 +5421,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 }
 
 #sec-method .faq-item {
-  border-bottom: 1px dashed rgba(225, 224, 217.18);
+  border-bottom: 1px dashed rgba(225, 224, 217, .18);
 }
 
 #sec-method .faq-q {
@@ -5482,7 +5482,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   content: '';
   position: absolute;
   background: #71717a;
-  transition: transform .3s cubic-bezier(.16, 1.3, 1), background .25s ease;
+  transition: transform .3s cubic-bezier(.16, 1, .3, 1), background .25s ease;
 }
 
 #sec-method .faq-sign::before { left: 0; top: 5.5px; width: 12px; height: 1px; }
@@ -5497,7 +5497,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 #sec-method .faq-a {
   height: 0;
   overflow: hidden;
-  transition: height .38s cubic-bezier(.16, 1.3, 1), opacity .3s ease;
+  transition: height .38s cubic-bezier(.16, 1, .3, 1), opacity .3s ease;
   opacity: 0;
 }
 
@@ -5525,7 +5525,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 #sec-method .faq-list.faq-drop .faq-item.faq-in {
   opacity: 1;
   transform: none;
-  transition: opacity .5s cubic-bezier(.16, 1.3, 1), transform .55s cubic-bezier(.16, 1.3, 1);
+  transition: opacity .5s cubic-bezier(.16, 1, .3, 1), transform .55s cubic-bezier(.16, 1, .3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5682,7 +5682,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   align-items: flex-start;
   gap: 20px;                 /* same as .meth-header / .ct-header / .faq-head */
   padding-bottom: 34px;
-  border-bottom: 1px dashed rgba(225, 224, 217.26);
+  border-bottom: 1px dashed rgba(225, 224, 217, .26);
 }
 
 #sec-method .cf-eyebrow {
@@ -6364,7 +6364,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   z-index: 10000;
   background: #131312;
   border: .5px solid #2e2e2c;
-  box-shadow: 0 18px 50px rgba(0, 0, 0.55);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .55);
   max-height: 232px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -6427,13 +6427,13 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   /* #20201f is the .cta strip's surface, an existing token, a real step up
      from the shared modal's #131312 without inventing a new grey. */
   background: #20201f;
-  border: 1px solid rgba(225, 224, 217.3);   /* the page's standard stroke */
+  border: 1px solid rgba(225, 224, 217, .3);   /* the page's standard stroke */
 }
 
 .dd-modal-card.dd-demo .dd-modal-head {
   flex-shrink: 0;
   background: #2a2a28;                          /* sits above the card, like .btn-secondary */
-  border-bottom: 1px solid rgba(225, 224, 217.3);
+  border-bottom: 1px solid rgba(225, 224, 217, .3);
 }
 
 .dd-modal-card.dd-demo .dd-modal-label { font-weight: 500; }
@@ -6454,7 +6454,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   margin-top: 10px;
   padding: 16px 0 22px;
   background: #20201f;                          /* match the card, or it ghosts */
-  border-top: 1px solid rgba(225, 224, 217.3);
+  border-top: 1px solid rgba(225, 224, 217, .3);
 }
 
 .dd-demo-title {
@@ -6482,8 +6482,8 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   grid-template-columns: 1fr 1fr;
   gap: 14px 26px;
   padding: 22px 0 24px;
-  border-top: 1px solid rgba(225, 224, 217.3);
-  border-bottom: 1px solid rgba(225, 224, 217.3);
+  border-top: 1px solid rgba(225, 224, 217, .3);
+  border-bottom: 1px solid rgba(225, 224, 217, .3);
   margin-bottom: 26px;
 }
 
@@ -7985,8 +7985,8 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   --ink-3: #71717a;
   --bg: #000;
   --surface: #2b2a2c;
-  --line: rgba(225, 224, 217.3);
-  --line-soft: rgba(225, 224, 217.14);
+  --line: rgba(225, 224, 217, .3);
+  --line-soft: rgba(225, 224, 217, .14);
 
   
   --lt-bg: #e9e7df;
@@ -8078,7 +8078,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   display: inline-block;
   font-style: inherit;
   transform: translateY(112%);
-  transition: transform .78s cubic-bezier(.16, 1.3, 1);
+  transition: transform .78s cubic-bezier(.16, 1, .3, 1);
   
 }#page-case .rvw.in .w > i{ transform: none; }#page-case .rvw.rv{ opacity: 1; transform: none; }@media (prefers-reduced-motion: reduce) {#page-case .rvw .w > i{ transform: none; transition: none; }
 }#page-case #cs-faq .faq{
@@ -8090,7 +8090,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   align-items: flex-start;
   gap: 20px;                 
   padding-bottom: 26px;
-  border-bottom: 1px dashed rgba(225, 224, 217.26);
+  border-bottom: 1px dashed rgba(225, 224, 217, .26);
 }#page-case #cs-faq .faq-eyebrow{
   font-family: 'JetBrains Mono', monospace;
   font-weight: 500;
@@ -8112,7 +8112,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   flex-direction: column;
   margin-top: 8px;
 }#page-case #cs-faq .faq-item{
-  border-bottom: 1px dashed rgba(225, 224, 217.18);
+  border-bottom: 1px dashed rgba(225, 224, 217, .18);
 }#page-case #cs-faq .faq-q{
   display: flex;
   align-items: center;
@@ -8156,11 +8156,11 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   content: '';
   position: absolute;
   background: #71717a;
-  transition: transform .3s cubic-bezier(.16, 1.3, 1), background .25s ease;
+  transition: transform .3s cubic-bezier(.16, 1, .3, 1), background .25s ease;
 }#page-case #cs-faq .faq-sign::before{ left: 0; top: 5.5px; width: 12px; height: 1px; }#page-case #cs-faq .faq-sign::after{ left: 5.5px; top: 0; width: 1px; height: 12px; }#page-case #cs-faq .faq-item.open .faq-sign::after{ transform: scaleY(0); }#page-case #cs-faq .faq-item.open .faq-sign::before{ background: #c8f24e; }#page-case #cs-faq .faq-a{
   height: 0;
   overflow: hidden;
-  transition: height .38s cubic-bezier(.16, 1.3, 1), opacity .3s ease;
+  transition: height .38s cubic-bezier(.16, 1, .3, 1), opacity .3s ease;
   opacity: 0;
 }#page-case #cs-faq .faq-item.open .faq-a{ opacity: 1; }#page-case #cs-faq .faq-a-inner{
   padding: 0 0 24px 26px;
@@ -8176,7 +8176,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
 }#page-case #cs-faq .faq-list.faq-drop .faq-item.faq-in{
   opacity: 1;
   transform: none;
-  transition: opacity .5s cubic-bezier(.16, 1.3, 1), transform .55s cubic-bezier(.16, 1.3, 1);
+  transition: opacity .5s cubic-bezier(.16, 1, .3, 1), transform .55s cubic-bezier(.16, 1, .3, 1);
 }@media (prefers-reduced-motion: reduce) {#page-case #cs-faq .faq-list.faq-drop .faq-item{
     opacity: 1;
     transform: none;
@@ -8191,7 +8191,7 @@ No agents to install, no workflow changes, nothing your employees have to do dif
   align-items: flex-start;
   gap: 20px;                 
   padding-bottom: 34px;
-  border-bottom: 1px dashed rgba(225, 224, 217.26);
+  border-bottom: 1px dashed rgba(225, 224, 217, .26);
 }#page-case #cs-contact .cf-eyebrow{
   font-family: 'JetBrains Mono', monospace;
   font-weight: 500;
@@ -8336,14 +8336,14 @@ No agents to install, no workflow changes, nothing your employees have to do dif
     display: flex;
     align-items: center;
     
-    gap: 32px;}#page-case #page-case #cs-nav .topbar-nav .btn{margin-left: auto;}#page-case #cs-nav .topbar-link{position: relative; isolation: isolate; transition: color .22s cubic-bezier(.16, 1.3, 1);}#page-case #cs-nav .topbar-link::before{content: "";
+    gap: 32px;}#page-case #page-case #cs-nav .topbar-nav .btn{margin-left: auto;}#page-case #cs-nav .topbar-link{position: relative; isolation: isolate; transition: color .22s cubic-bezier(.16, 1, .3, 1);}#page-case #cs-nav .topbar-link::before{content: "";
     position: absolute;
     inset: 15px -10px;
     background: #c8f24e;
     z-index: -1;
     transform: scaleY(0);
     transform-origin: center bottom;
-    transition: transform .32s cubic-bezier(.16, 1.3, 1);}#page-case #cs-nav .topbar-link:not(.on):hover, #page-case #cs-nav .topbar-link:not(.on):focus-visible{color: #161d03;}#page-case #cs-nav .topbar-link:not(.on):hover::before, #page-case #cs-nav .topbar-link:not(.on):focus-visible::before{transform: scaleY(1);}#page-case #cs-nav .topbar-link.on{color: #161d03; cursor: default;}#page-case #cs-nav .topbar-link.on::before{transform: scaleY(1);}#page-case #page-case #cs-nav .topbar-nav .btn{transition: filter .18s ease;}#page-case #cs-nav .topbar-nav .btn:hover{filter: brightness(1.08);}#page-case #cs-nav .topbar-link, #page-case #cs-nav .topbar-link::before, #page-case #page-case #cs-nav .topbar-nav .btn{transition: none;}#page-case #cs-nav .topbar-links{display: flex;
+    transition: transform .32s cubic-bezier(.16, 1, .3, 1);}#page-case #cs-nav .topbar-link:not(.on):hover, #page-case #cs-nav .topbar-link:not(.on):focus-visible{color: #161d03;}#page-case #cs-nav .topbar-link:not(.on):hover::before, #page-case #cs-nav .topbar-link:not(.on):focus-visible::before{transform: scaleY(1);}#page-case #cs-nav .topbar-link.on{color: #161d03; cursor: default;}#page-case #cs-nav .topbar-link.on::before{transform: scaleY(1);}#page-case #page-case #cs-nav .topbar-nav .btn{transition: filter .18s ease;}#page-case #cs-nav .topbar-nav .btn:hover{filter: brightness(1.08);}#page-case #cs-nav .topbar-link, #page-case #cs-nav .topbar-link::before, #page-case #page-case #cs-nav .topbar-nav .btn{transition: none;}#page-case #cs-nav .topbar-links{display: flex;
     align-items: center;
     gap: 32px;}#page-case #cs-nav .topbar-link{display: flex;
     align-items: center;
