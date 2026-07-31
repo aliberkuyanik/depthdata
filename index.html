@@ -789,6 +789,24 @@ a{text-decoration:none;color:inherit}
   #sec-hero .hm-note{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8b897f;line-height:1.7;}
 }
 </style>
+<style id="mobile-nav-css">
+#sec-hero .topbar-burger{display:none;}
+@media (max-width:767px){
+  #sec-hero .topbar{position:fixed !important;left:0 !important;top:0 !important;width:100% !important;height:58px !important;display:flex !important;align-items:center !important;box-sizing:border-box !important;padding:0 18px !important;z-index:80 !important;visibility:visible !important;}
+  #sec-hero .topbar-accent{height:2px !important;}
+  #sec-hero .topbar-brand{position:static !important;left:auto !important;top:auto !important;transform:none !important;margin:0 auto 0 0 !important;}
+  #sec-hero .topbar-nav{position:static !important;left:auto !important;top:auto !important;transform:none !important;width:auto !important;margin-left:auto !important;}
+  #sec-hero .topbar-nav .btn-primary{display:none !important;}
+  #sec-hero .topbar-burger{display:flex !important;flex-direction:column !important;justify-content:center !important;gap:5px !important;width:42px !important;height:42px !important;padding:10px !important;background:transparent !important;border:0 !important;cursor:pointer !important;}
+  #sec-hero .topbar-burger span{display:block !important;height:2px !important;width:22px !important;background:#f1efe8 !important;border-radius:2px !important;transition:transform .2s,opacity .2s !important;}
+  #sec-hero .topbar.menu-open .topbar-burger span:nth-child(1){transform:translateY(7px) rotate(45deg) !important;}
+  #sec-hero .topbar.menu-open .topbar-burger span:nth-child(2){opacity:0 !important;}
+  #sec-hero .topbar.menu-open .topbar-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg) !important;}
+  #sec-hero .topbar-links{position:absolute !important;top:58px !important;left:0 !important;right:0 !important;flex-direction:column !important;align-items:stretch !important;gap:0 !important;background:#151514 !important;border-bottom:0.5px solid rgba(225,224,217,0.14) !important;padding:6px 0 !important;margin:0 !important;display:none !important;}
+  #sec-hero .topbar.menu-open .topbar-links{display:flex !important;}
+  #sec-hero .topbar-link{height:auto !important;justify-content:flex-start !important;padding:16px 22px !important;font-size:12px !important;}
+}
+</style>
 </head>
 <body>
 <div class="stage"><div class="page">
@@ -1240,6 +1258,7 @@ is             doing with AI.</h1>
         <a class="topbar-link" href="#contact" data-target="#sec-method .cf">CONTACT</a>
       </div>
       <a class="btn btn-primary" href="#demo" data-demo>GET EARLY DEMO &#8594;</a>
+      <button class="topbar-burger" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </nav>
   </header>
 </section>
@@ -9102,5 +9121,15 @@ window.__ddCaseStudy = function (root) {
 </script>
 <script>/*nav-fix*/(function(){document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a.topbar-link");if(!a)return;var href=a.getAttribute("href")||"";if(href==="#case-study")return;if(/\.html($|[#?])/.test(href)||/^https?:\/\//.test(href)){e.preventDefault();e.stopPropagation();window.location.href=href;return;}var dt=a.getAttribute("data-target");if(dt){var el=document.querySelector(dt);if(el){e.preventDefault();e.stopPropagation();var nav=document.getElementById("fixed-nav");var navH=(nav&&nav.offsetHeight)||64;var y=el.getBoundingClientRect().top+window.scrollY-navH-12;window.scrollTo({top:y,behavior:"smooth"});}return;}},true);})();</script>
 <script>/*demo-hash*/(function(){function go(){if(location.hash==="#demo"&&typeof window.__ddOpenDemo==="function"){try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}setTimeout(function(){try{window.__ddOpenDemo();}catch(e){}},350);}}window.addEventListener("load",go);})();</script>
+<script>
+(function(){
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.topbar-burger');
+    if(b){var bar=b.closest('.topbar');var open=bar.classList.toggle('menu-open');b.setAttribute('aria-expanded',open?'true':'false');e.preventDefault();return;}
+    var lk=e.target.closest('.topbar.menu-open .topbar-link');
+    if(lk){var bar=lk.closest('.topbar');bar.classList.remove('menu-open');var bb=bar.querySelector('.topbar-burger');if(bb)bb.setAttribute('aria-expanded','false');}
+  },false);
+})();
+</script>
 </body>
 </html>
