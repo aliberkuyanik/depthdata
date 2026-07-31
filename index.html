@@ -762,6 +762,33 @@ a{text-decoration:none;color:inherit}
 }
 
 </style>
+<style id="hero-mobile-css">
+#sec-hero .hero-m{display:none;}
+@media (max-width:767px){
+  html,body{overflow-x:hidden;}
+  .stage{height:auto !important;max-width:100% !important;}
+  .page{width:100% !important;transform:none !important;}
+  #sec-hero{height:auto !important;overflow:visible !important;}
+  #sec-hero > .hero, #sec-hero > .cta-bar, #sec-hero > .ph-badge{display:none !important;}
+  #sec-hero .hero-m{display:block;position:relative;z-index:3;padding:96px 22px 46px;box-sizing:border-box;}
+  #sec-hero .hm-eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 18px;}
+  #sec-hero .hm-eyebrow .hm-eb-logo{width:22px;height:22px;flex:none;display:block;}
+  #sec-hero .hm-eyebrow span{font-family:"JetBrains Mono",monospace;font-weight:400;font-size:14px;letter-spacing:2.6px;color:#c8f24e;}
+  #sec-hero .hm-h1{font-family:"TT Commons","TT Commons Pro","Helvetica Neue",Arial,sans-serif;font-weight:600;font-size:clamp(34px,10.5vw,44px);line-height:1.06;letter-spacing:0;color:#faf9f5;margin:0 0 20px;}
+  #sec-hero .hm-really{color:#c8f24e;}
+  #sec-hero .hm-sub{font-family:"TT Commons","TT Commons Pro","Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:17px;line-height:1.5;color:#c2c0b6;margin:0 0 28px;}
+  #sec-hero .hm-card{background:#181818;border:0.5px solid #262622;padding:24px 22px;margin:0 0 28px;}
+  #sec-hero .hm-block + .hm-block{margin-top:24px;padding-top:24px;border-top:0.5px solid #262622;}
+  #sec-hero .hm-label{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:12.4px;letter-spacing:2.24px;text-transform:uppercase;color:#c8f24e;margin:0 0 12px;}
+  #sec-hero .hm-card p{font-family:"TT Commons","TT Commons Pro","Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:16px;line-height:1.55;color:#f1efe8;margin:0;}
+  #sec-hero .hm-hl{color:#c8f24e;}
+  #sec-hero .hm-cta{display:flex;flex-direction:column;gap:12px;margin:0 0 22px;}
+  #sec-hero .hm-cta .btn{width:100%;box-sizing:border-box;justify-content:center;font-size:12px;padding:16px 22px;}
+  #sec-hero .hm-ph{display:block;line-height:0;margin:0 0 22px;}
+  #sec-hero .hm-ph img{width:210px;height:auto;display:block;}
+  #sec-hero .hm-note{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8b897f;line-height:1.7;}
+}
+</style>
 </head>
 <body>
 <div class="stage"><div class="page">
@@ -1177,6 +1204,23 @@ is             doing with AI.</h1>
     <a class="btn btn-primary" href="#">GET EARLY DEMO &#8594;</a>
     <a class="btn btn-secondary" href="#">SEE THE PRODUCT &#8595;</a>
     <div class="cta-note">READ-ONLY ADMIN APIS &#183; NO AGENTS ON LAPTOPS &#183; PROMPTS NEVER READ</div>
+  </div>
+
+  <!-- Mobile hero (flow layout, shown only <=767px) -->
+  <div class="hero-m">
+    <div class="hm-eyebrow"><svg class="hm-eb-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#c8f24e"/></svg><span>AI spend intelligence</span></div>
+    <h1 class="hm-h1">See what your company is <span class="hm-really">Really</span> doing with AI.</h1>
+    <p class="hm-sub">Depthdata connects ChatGPT, Claude, Copilot, and every other AI tool your teams use into one governed view of adoption, spend, and cost per outcome: evidence your CEO, CFO, CIO, and board can all agree on.</p>
+    <div class="hm-card">
+      <div class="hm-block"><div class="hm-label">THE PROBLEM:</div><p>ChatGPT, Claude, Copilot, and Gemini all have their own admin panels, metrics, and definitions of &quot;usage.&quot; Companies spend six figures a year on AI, yet no one can confidently answer the board&#8217;s biggest question: <span class="hm-hl">Is any of it working?</span></p></div>
+      <div class="hm-block"><div class="hm-label">THE ANSWER:</div><p>One connected, audit ready view of AI adoption, spend, and cost per outcome across every AI tool your company uses. Connect your admin consoles once, and Depthdata unifies the data into a single source of truth trusted by finance, IT, and leadership.</p></div>
+    </div>
+    <div class="hm-cta">
+      <a class="btn btn-primary" href="#" data-demo>GET EARLY DEMO &#8594;</a>
+      <a class="btn btn-secondary" href="#" data-target="#sec-tabs .tabs-hero">SEE THE PRODUCT &#8595;</a>
+    </div>
+    <a class="hm-ph" href="https://www.producthunt.com/products/depthdata?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-depthdata" target="_blank" rel="noopener noreferrer" aria-label="DepthData on Product Hunt"><img alt="DepthData - Featured on Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1211027&amp;theme=light&amp;t=1785523155286"/></a>
+    <div class="hm-note">READ-ONLY ADMIN APIS &#183; NO AGENTS ON LAPTOPS &#183; PROMPTS NEVER READ</div>
   </div>
 
   <!-- Top bar (562:1607) -->
