@@ -1,0 +1,1 @@
+{"redirects":[{"source":"/demo","destination":"/demo/","permanent":false}],"rewrites":[{"source":"/demo/:path*","destination":"https://depthdata-demo.vercel.app/:path*"},{"source":"/api/:path*","destination":"https://depthdata-demo.vercel.app/api/:path*"}]}
