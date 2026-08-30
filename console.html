@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>DepthData Console</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="dark"]{--bg:#333234;--surface:#2B2A2C;--surface-2:#26262C;--border:rgba(225,224,217,.30);--border-strong:rgba(225,224,217,.42);
+--ink:#F4F4F5;--ink-2:#A1A1AA;--ink-3:#71717A;--accent:#D7FF87;--accent-2:#C3EE6B;--accent-soft:rgba(215,255,135,.16);--accent-line:rgba(215,255,135,.4);
+--green:#5CC08A;--green-soft:rgba(92,192,138,.15);--gold:#C2A24E;--gold-soft:rgba(194,162,78,.16);--lilac:#9B9BF0;--lilac-soft:rgba(123,123,230,.18);
+--red:#E2885F;--red-soft:rgba(217,110,70,.18);--blue:#6FA8E6;--blue-soft:rgba(90,150,210,.18);--c1:#4E7D68;--moss:#6B9A82;
+--r-sm:5px;--r:6px;--r-lg:8px;--shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 24px rgba(0,0,0,.3)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'TT Commons','TT Commons Pro','Inter Tight','Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
+.mono{font-family:'JetBrains Mono',monospace}
+.tnum{font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+/* ---------------- sidebar (app verbatim) ---------------- */
+.side{background:var(--surface);border-right:1px solid var(--border);padding:22px 16px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand-mark{width:32px;height:32px;flex:0 0 auto;background:none;box-shadow:none;display:grid;place-items:center}
+.brand-mark svg{width:28px!important;height:28px!important}
+.brand-mark svg path{fill:var(--accent)!important}
+.brand-name{font-family:'TT Commons','TT Commons Pro','Inter Tight';font-weight:700;font-size:16.5px;letter-spacing:-.02em}
+.brand-name path{fill:var(--ink)!important}
+.brand-tag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.16em;color:var(--ink-3);margin-left:2px;align-self:flex-end;padding-bottom:3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav-label{padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2);font-weight:500;font-size:13.5px;transition:background .15s,color .15s;cursor:pointer}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+.nav a.active{background:var(--accent-soft);color:var(--accent)}
+.nav a svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.nav .cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-3);background:var(--surface-2);border-radius:99px;padding:2px 7px}
+.nav a.active .cnt{color:var(--accent);background:rgba(215,255,135,.12)}
+.side-foot-group{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.conn{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--ink-3);padding:0 10px}
+.conn .fd{width:6px;height:6px;border-radius:99px;background:var(--green)}
+.profile{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface-2)}
+.pf-av{width:34px;height:34px;border-radius:99px;background:linear-gradient(145deg,var(--c1),var(--moss));display:grid;place-items:center;color:#F5F4ED;font-weight:700;font-size:12px}
+.pf-body{flex:1;min-width:0}
+.pf-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-role{font-size:9.5px;color:var(--ink-3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.pf-out{margin-left:auto;background:none;border:none;color:var(--ink-3);cursor:pointer;padding:4px}
+.pf-out:hover{color:var(--red)}
+.pf-out svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7}
+.side-ver{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);text-align:center;margin-top:10px;user-select:none}
+/* ---------------- main + topbar ---------------- */
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{height:58px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:8}
+.bar-inner{display:flex;align-items:center;gap:14px;height:100%;padding:0 26px}
+.pg-title{font-weight:600;font-size:15px}
+.pg-sub{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase}
+#ddClock{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);white-space:nowrap}
+.hdr-actions{display:flex;gap:8px;align-items:center}
+.content{padding:24px 26px 90px;max-width:1220px;width:100%;margin:0 auto}
+/* ---------------- primitives ---------------- */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.sect{margin:24px 0 12px;display:flex;align-items:center;gap:12px}
+.sect .line{flex:1;height:1px;background:var(--border)}
+.hint{font-size:12px;color:var(--ink-3);margin:6px 0 14px;line-height:1.55}
+.card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+background-image:radial-gradient(circle, color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1px);background-size:22px 22px;background-position:-4px -4px}
+.card::before{content:"";position:absolute;top:-1px;left:16px;width:26px;height:2px;background:var(--accent);opacity:.9;border-radius:0 0 1px 1px;pointer-events:none}
+.cf{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.08em;border-radius:99px;padding:3.5px 10px 2.5px;flex:0 0 auto}
+.cf.live{color:var(--green);background:var(--green-soft)}
+.cf.sample{color:var(--gold);background:var(--gold-soft)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1000px){.grid4,.grid3{grid-template-columns:repeat(2,1fr)}}
+.kpi{padding:15px 17px}
+.kpi .v{font-weight:700;font-size:25px;letter-spacing:-.02em;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:11px;color:var(--ink-3);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding:13px 14px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid color-mix(in srgb, var(--border) 45%, transparent);font-size:12.5px;vertical-align:middle;color:var(--ink-2)}
+tbody tr:hover td{background:color-mix(in srgb, var(--surface-2) 55%, transparent)}
+tr:last-child td{border-bottom:none}
+tbody tr.rowlink{cursor:pointer}
+.empty{text-align:center;color:var(--ink-3);padding:36px;font-size:12.5px;line-height:1.6}
+.pillbtn{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;background:var(--surface);border:1px solid var(--border-strong);font-family:inherit;font-size:12px;font-weight:500;color:var(--ink-2);cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap}
+.pillbtn:hover{background:var(--surface-2);color:var(--ink)}
+.pillbtn.primary{background:var(--accent);border-color:var(--accent);color:#2B2B28;font-weight:600}
+.pillbtn.primary:hover{background:var(--accent-2)}
+.pillbtn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.pillbtn.danger:hover{background:var(--red-soft)}
+.pillbtn.sm{padding:5px 10px;font-size:11px}
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:var(--surface-2);border:1px solid var(--border-strong);color:var(--ink);border-radius:var(--r);padding:5px 26px 5px 8px;font:inherit;font-size:12px;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:11px;line-height:1.4}
+input[type=text],input[type=password],input[type=email],input[type=number],textarea{background:var(--surface-2);border:1px solid var(--border-strong);color:var(--ink);border-radius:var(--r);padding:7px 10px;font:inherit;font-size:12.5px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent-line)}
+.search{position:relative;flex:1;max-width:320px}
+.search input{width:100%;padding-left:30px}
+.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:none;stroke:var(--ink-3);stroke-width:1.7}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--border-strong);background:var(--surface);color:var(--ink-2);font-family:inherit;font-size:11.5px;font-weight:500;border-radius:99px;padding:5.5px 12px 4.5px;cursor:pointer;transition:.15s}
+.chip:hover{background:var(--surface-2);color:var(--ink)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#2B2B28;font-weight:600}
+.tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.06em;border-radius:99px;padding:3.5px 9px 2.5px;white-space:nowrap}
+.tag.new,.tag.growth,.tag.idea,.tag.owner{color:var(--accent);background:var(--accent-soft)}
+.tag.contacted,.tag.open,.tag.question,.tag.trial,.tag.watch,.tag.starter{color:var(--gold);background:var(--gold-soft)}
+.tag.invited,.tag.resolved,.tag.active,.tag.good,.tag.paid,.tag.admin,.tag.ok{color:var(--green);background:var(--green-soft)}
+.tag.closed,.tag.viewer,.tag.free,.tag.churned{color:var(--ink-3);background:rgba(225,224,217,.08)}
+.tag.bug,.tag.failed,.tag.risk,.tag.suspended,.tag.down{color:var(--red);background:var(--red-soft)}
+.tag.support,.tag.refunded,.tag.enterprise{color:var(--lilac);background:var(--lilac-soft)}
+.hdot{width:7px;height:7px;border-radius:99px;display:inline-block;margin-right:7px}
+.hdot.good{background:var(--green)}.hdot.watch{background:var(--gold)}.hdot.risk{background:var(--red)}
+/* funnel */
+.funnel{display:flex;gap:10px;align-items:flex-end;padding:20px}
+.fstep{flex:1;text-align:center}
+.fbar{background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:6px 6px 2px 2px;margin-bottom:9px;min-height:6px}
+.fnum{font-weight:700;font-size:16px}
+.flab{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;margin-top:2px}
+/* attention queue */
+.att{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent)}
+.att:last-child{border-bottom:none}
+.att .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto}
+.att .ic svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}
+.att.sev-r .ic{background:var(--red-soft);color:var(--red)}
+.att.sev-g .ic{background:var(--gold-soft);color:var(--gold)}
+.att.sev-b .ic{background:var(--blue-soft);color:var(--blue)}
+.att .tt{font-weight:600;font-size:13px;color:var(--ink)}
+.att .ss{font-size:11.5px;color:var(--ink-3)}
+.att .act{margin-left:auto}
+/* activity feed */
+.feed{padding:6px 0}
+.fitem{display:flex;gap:12px;padding:10px 16px;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid color-mix(in srgb,var(--border) 35%,transparent)}
+.fitem:last-child{border-bottom:none}
+.fitem .ft{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);white-space:nowrap;padding-top:2px}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(760px,94vw);background:var(--bg);border-left:1px solid var(--border);transform:translateX(102%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:41;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-head{padding:20px 24px 0;background:var(--surface);border-bottom:1px solid var(--border)}
+.dr-top{display:flex;align-items:center;gap:14px}
+.dr-logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(145deg,var(--c1),var(--moss));display:grid;place-items:center;font-weight:700;font-size:15px;color:#F5F4ED}
+.dr-name{font-weight:700;font-size:17px;letter-spacing:-.01em}
+.dr-dom{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3)}
+.dr-x{margin-left:auto;background:none;border:1px solid var(--border-strong);border-radius:99px;width:30px;height:30px;color:var(--ink-3);cursor:pointer}
+.dr-x:hover{color:var(--ink)}
+.dr-tabs{display:flex;gap:2px;margin-top:16px}
+.dr-tabs button{border:none;background:none;font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink-3);padding:9px 13px;cursor:pointer;border-bottom:2px solid transparent}
+.dr-tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.dr-body{flex:1;overflow-y:auto;padding:20px 24px 40px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 35%,transparent);font-size:12.5px}
+.kv:last-child{border-bottom:none}
+.kv b{color:var(--ink);font-weight:600}
+.kv .k{color:var(--ink-3)}
+.banner{display:flex;gap:10px;align-items:center;padding:11px 14px;border-radius:var(--r-lg);font-size:12.5px;margin-bottom:14px}
+.banner.red{background:var(--red-soft);color:var(--red)}
+.banner.gold{background:var(--gold-soft);color:var(--gold)}
+.banner.green{background:var(--green-soft);color:var(--green)}
+/* modal */
+.modal-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:60}
+.modal-scrim.on{display:grid}
+.modal{width:min(420px,92vw);background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;padding:22px}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.modal p{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:18px}
+.modal .btns{display:flex;gap:8px;justify-content:flex-end}
+/* toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface);border:1px solid var(--border-strong);border-radius:99px;padding:10px 18px;font-size:12.5px;color:var(--ink);opacity:0;transition:.25s;z-index:70;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* skeleton + misc */
+.skel{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2) 25%,color-mix(in srgb,var(--surface-2) 60%,var(--surface)) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.errbar{display:none;background:var(--red-soft);color:var(--red);padding:10px 26px;font-size:12.5px}
+.errbar.on{display:flex;gap:12px;align-items:center}
+.copybar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.addform{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:14px;border-bottom:1px solid var(--border)}
+.keyreveal{background:var(--surface-2);border:1px dashed var(--accent-line);border-radius:var(--r-lg);padding:12px 14px;margin:12px 14px;font-size:12px;display:none}
+.keyreveal.on{display:block}
+.keyreveal code{font-family:'JetBrains Mono',monospace;color:var(--accent);word-break:break-all}
+.saved{color:var(--green);font-size:10px;font-family:'JetBrains Mono',monospace;opacity:0;transition:.3s}
+.saved.on{opacity:1}
+.note-in{font-size:11.5px;width:100%}
+.bulk{display:none;gap:10px;align-items:center;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:99px;padding:6px 8px 6px 16px;font-size:12px}
+.bulk.on{display:inline-flex}
+.gate{max-width:380px;margin:16vh auto;padding:30px 28px;text-align:center}
+.gate .brandmark{width:34px;height:34px;margin-inline:auto}
+.gate input{margin-top:16px;text-align:center;width:100%}
+.gate .go{margin-top:12px;width:100%;border:none;border-radius:99px;background:var(--accent);color:#2B2B28;font-weight:600;font-size:13px;padding:10px 0 9px;cursor:pointer;font-family:inherit}
+.gate .err{color:var(--red);font-size:12px;margin-top:10px;display:none;line-height:1.5}
+.gate .ghostgo{margin-top:9px;width:100%;border:1px solid var(--border-strong);border-radius:99px;background:none;color:var(--ink-2);font-weight:500;font-size:12.5px;padding:9px 0 8px;cursor:pointer;font-family:inherit;transition:.15s}
+.gate .ghostgo:hover{background:var(--surface-2);color:var(--ink)}
+.gate .ok{color:var(--green);font-size:12px;margin-top:10px;display:none;line-height:1.5}
+
+.section-gap{height:22px}
+.tag.p1{color:var(--red);background:var(--red-soft)}
+.tag.p2{color:var(--gold);background:var(--gold-soft)}
+.tag.p3{color:var(--blue);background:var(--blue-soft)}
+.tag.p4{color:var(--ink-3);background:rgba(225,224,217,.08)}
+select.prisel{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.05em;border-radius:99px;padding:4px 20px 4px 9px;background-position:right 7px center;background-size:9px}
+select.prisel.p1{color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,transparent);background-color:var(--red-soft)}
+select.prisel.p2{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 50%,transparent);background-color:var(--gold-soft)}
+select.prisel.p3{color:var(--blue);border-color:color-mix(in srgb,var(--blue) 50%,transparent);background-color:var(--blue-soft)}
+select.prisel.p4{color:var(--ink-3);background-color:var(--surface-2)}
+
+.mini{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3)}
+.provgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1000px){.provgrid{grid-template-columns:repeat(2,1fr)}}
+.prov{padding:14px 15px}
+.prov .pn{font-weight:600;font-size:13px;display:flex;align-items:center;gap:8px}
+.prov .ps{font-size:11px;color:var(--ink-3);margin-top:6px}
+</style>
+</head>
+<body>
+
+<div id="gate" class="card gate" style="display:none">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div class="brand-mark" style="width:40px;height:40px"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3.61696 10.8627C3.42884 10.485 3.97595 10.178 4.21765 10.5257L7.55791 15.3303C8.11865 16.1369 9.1297 16.5271 10.1061 16.3138L11.7391 15.9571C12.0627 15.8864 12.2945 16.2549 12.0827 16.5032L10.9431 17.8393C10.4895 18.371 10.2973 19.069 10.4169 19.7502L10.7309 21.5386C10.7852 21.8481 10.4145 22.0564 10.1662 21.8558L8.73159 20.697C8.18516 20.2557 7.46786 20.0687 6.76786 20.185L4.9788 20.4824C4.65515 20.5362 4.44235 20.1636 4.66023 19.9245L5.82676 18.6447C6.47904 17.929 6.62472 16.9017 6.19598 16.0409L3.61696 10.8627Z" fill="#2B2B28"/>
+          <path d="M5.25441 2.53931C5.06629 2.16159 5.61341 1.85459 5.85511 2.20225L9.19536 7.00691C9.7561 7.81349 10.7672 8.20372 11.7436 7.99042L13.3766 7.63371C13.7002 7.56302 13.932 7.93146 13.7202 8.17978L12.5805 9.51586C12.127 10.0476 11.9348 10.7456 12.0544 11.4268L12.3683 13.2152C12.4226 13.5247 12.052 13.733 11.8037 13.5324L10.369 12.3737C9.82261 11.9323 9.10531 11.7453 8.40531 11.8616L6.61625 12.159C6.2926 12.2128 6.07981 11.8402 6.29768 11.6011L7.46421 10.3213C8.11649 9.60562 8.26217 8.57832 7.83343 7.7175L5.25441 2.53931Z" fill="#2B2B28"/>
+          <path d="M13.3216 5.39534C13.1334 5.01762 13.6805 4.71062 13.9222 5.05828L17.2625 9.86293C17.8232 10.6695 18.8343 11.0597 19.8107 10.8464L21.4437 10.4897C21.7673 10.419 21.9991 10.7875 21.7873 11.0358L20.6477 12.3719C20.1941 12.9036 20.0019 13.6016 20.1215 14.2828L20.4354 16.0712C20.4898 16.3807 20.1191 16.589 19.8708 16.3885L18.4362 15.2297C17.8898 14.7883 17.1724 14.6013 16.4725 14.7176L14.6834 15.015C14.3597 15.0688 14.1469 14.6962 14.3648 14.4572L15.5313 13.1773C16.1836 12.4616 16.3293 11.4343 15.9006 10.5735L13.3216 5.39534Z" fill="#2B2B28"/>
+        </svg></div><svg class="brand-name" width="76" height="15" viewBox="0 0 80 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Depthdata">
+        <path d="M75.5989 3.49609C76.1197 3.49609 76.595 3.58073 77.0247 3.75C77.4609 3.91276 77.8319 4.13737 78.1379 4.42383C78.4439 4.71029 78.6816 5.04883 78.8508 5.43945C79.0201 5.82357 79.1047 6.24349 79.1047 6.69922V12.5977H77.8059L77.4055 11.6992C77.2297 11.888 77.0214 12.054 76.7805 12.1973C76.5657 12.3275 76.2955 12.4447 75.97 12.5488C75.6444 12.6465 75.2538 12.6953 74.7981 12.6953C73.7955 12.6953 73.0273 12.4479 72.4934 11.9531C71.9661 11.4518 71.7024 10.8008 71.7024 10C71.7024 9.54427 71.787 9.13411 71.9563 8.76953C72.1321 8.39844 72.4283 8.08594 72.845 7.83203C73.2681 7.57161 73.8378 7.36979 74.554 7.22656C75.2766 7.07682 76.1913 7.00195 77.2981 7.00195V6.69922C77.2981 6.24349 77.1549 5.87891 76.8684 5.60547C76.5819 5.33203 76.1588 5.19531 75.5989 5.19531C74.9999 5.19531 74.5637 5.30273 74.2903 5.51758C74.0168 5.73242 73.8541 5.99284 73.802 6.29883H72.0051C72.0572 5.49805 72.3925 4.83073 73.011 4.29688C73.6295 3.76302 74.4921 3.49609 75.5989 3.49609ZM74.9055 11.0938C75.6672 11.0938 76.2564 10.8984 76.6731 10.5078C77.0898 10.1172 77.2981 9.64193 77.2981 9.08203V8.59375C76.4973 8.59375 75.8495 8.63281 75.3547 8.71094C74.8665 8.78255 74.4823 8.88346 74.2024 9.01367C73.9224 9.13737 73.7336 9.29362 73.636 9.48242C73.5448 9.66471 73.4993 9.86979 73.4993 10.0977C73.4993 10.3516 73.6197 10.5827 73.8606 10.791C74.1015 10.9928 74.4498 11.0938 74.9055 11.0938Z" fill="#F5F4ED"/>
+        <path d="M68.5964 9.59961C68.5964 9.99675 68.7299 10.3288 68.9968 10.5957C69.2638 10.8626 69.5958 10.9961 69.9929 10.9961C70.058 10.9961 70.1264 10.9928 70.198 10.9863C70.2761 10.9798 70.3477 10.9701 70.4128 10.957C70.4779 10.944 70.5398 10.9245 70.5984 10.8984V12.5C70.5203 12.5391 70.4259 12.5716 70.3152 12.5977C70.1134 12.6628 69.8757 12.6953 69.6023 12.6953C69.2052 12.6953 68.8341 12.6237 68.489 12.4805C68.1505 12.3307 67.8542 12.1224 67.6003 11.8555C67.3464 11.5885 67.1479 11.2663 67.0046 10.8887C66.8679 10.5111 66.7996 10.0814 66.7996 9.59961V5.29297H65.198V3.59375H65.9011C66.2462 3.59375 66.5326 3.48307 66.7605 3.26172C66.9884 3.03385 67.1023 2.7474 67.1023 2.40234V1.20117H68.5964V3.59375H70.5984V5.29297H68.5964V9.59961Z" fill="#F5F4ED"/>
+        <path d="M60.7935 3.49609C61.3143 3.49609 61.7896 3.58073 62.2192 3.75C62.6554 3.91276 63.0265 4.13737 63.3325 4.42383C63.6385 4.71029 63.8761 5.04883 64.0454 5.43945C64.2147 5.82357 64.2993 6.24349 64.2993 6.69922V12.5977H63.0005L62.6001 11.6992C62.4243 11.888 62.216 12.054 61.9751 12.1973C61.7603 12.3275 61.4901 12.4447 61.1646 12.5488C60.839 12.6465 60.4484 12.6953 59.9927 12.6953C58.9901 12.6953 58.2218 12.4479 57.688 11.9531C57.1606 11.4518 56.897 10.8008 56.897 10C56.897 9.54427 56.9816 9.13411 57.1509 8.76953C57.3267 8.39844 57.6229 8.08594 58.0396 7.83203C58.4627 7.57161 59.0324 7.36979 59.7485 7.22656C60.4712 7.07682 61.3859 7.00195 62.4927 7.00195V6.69922C62.4927 6.24349 62.3494 5.87891 62.063 5.60547C61.7765 5.33203 61.3534 5.19531 60.7935 5.19531C60.1945 5.19531 59.7583 5.30273 59.4849 5.51758C59.2114 5.73242 59.0487 5.99284 58.9966 6.29883H57.1997C57.2518 5.49805 57.5871 4.83073 58.2056 4.29688C58.8241 3.76302 59.6867 3.49609 60.7935 3.49609ZM60.1001 11.0938C60.8618 11.0938 61.451 10.8984 61.8677 10.5078C62.2843 10.1172 62.4927 9.64193 62.4927 9.08203V8.59375C61.6919 8.59375 61.0441 8.63281 60.5493 8.71094C60.061 8.78255 59.6769 8.88346 59.397 9.01367C59.117 9.13737 58.9282 9.29362 58.8306 9.48242C58.7394 9.66471 58.6938 9.86979 58.6938 10.0977C58.6938 10.3516 58.8143 10.5827 59.0552 10.791C59.2961 10.9928 59.6444 11.0938 60.1001 11.0938Z" fill="#F5F4ED"/>
+        <path d="M50.8906 12.6953C50.2917 12.6953 49.7318 12.5846 49.2109 12.3633C48.6901 12.1354 48.2311 11.8197 47.834 11.416C47.4434 11.0059 47.1374 10.5208 46.916 9.96094C46.7012 9.40104 46.5938 8.7793 46.5938 8.0957C46.5938 7.41862 46.7012 6.80013 46.916 6.24023C47.1374 5.68034 47.4434 5.19857 47.834 4.79492C48.2311 4.38477 48.6901 4.06576 49.2109 3.83789C49.7318 3.61003 50.2917 3.49609 50.8906 3.49609C51.3203 3.49609 51.6882 3.55143 51.9941 3.66211C52.3001 3.76628 52.5605 3.87695 52.7754 3.99414C53.0163 4.14388 53.2214 4.31315 53.3906 4.50195V0H55.1875V12.5977H53.8887L53.4883 11.6992C53.3125 11.888 53.1074 12.054 52.873 12.1973C52.6582 12.3275 52.388 12.4447 52.0625 12.5488C51.737 12.6465 51.3464 12.6953 50.8906 12.6953ZM50.9883 5.19531C50.6432 5.19531 50.3145 5.26693 50.002 5.41016C49.6895 5.54688 49.4128 5.74544 49.1719 6.00586C48.931 6.26628 48.7389 6.57552 48.5957 6.93359C48.459 7.28516 48.3906 7.67253 48.3906 8.0957C48.3906 8.52539 48.459 8.91602 48.5957 9.26758C48.7389 9.61914 48.931 9.92513 49.1719 10.1855C49.4128 10.446 49.6895 10.6478 50.002 10.791C50.3145 10.9277 50.6432 10.9961 50.9883 10.9961C51.3333 10.9961 51.6621 10.9277 51.9746 10.791C52.2936 10.6478 52.5703 10.446 52.8047 10.1855C53.0456 9.92513 53.2344 9.61914 53.3711 9.26758C53.5143 8.91602 53.5859 8.52539 53.5859 8.0957C53.5859 7.66602 53.5143 7.27539 53.3711 6.92383C53.2344 6.57227 53.0456 6.26628 52.8047 6.00586C52.5703 5.74544 52.2936 5.54688 51.9746 5.41016C51.6621 5.26693 51.3333 5.19531 50.9883 5.19531Z" fill="#F5F4ED"/>
+        <path d="M41.5933 3.49609C42.0881 3.49609 42.5535 3.59375 42.9897 3.78906C43.4325 3.98438 43.8166 4.2513 44.1421 4.58984C44.4741 4.92839 44.7313 5.33854 44.9136 5.82031C45.1024 6.29557 45.1968 6.82292 45.1968 7.40234V12.5977H43.3999V7.40234C43.3999 7.10938 43.3413 6.82943 43.2241 6.5625C43.1134 6.29557 42.9604 6.0612 42.7651 5.85938C42.5763 5.65755 42.355 5.49805 42.1011 5.38086C41.8472 5.25716 41.5802 5.19531 41.3003 5.19531C40.9943 5.19531 40.7078 5.25716 40.4409 5.38086C40.174 5.49805 39.9396 5.65755 39.7378 5.85938C39.536 6.0612 39.3765 6.29557 39.2593 6.5625C39.1486 6.82292 39.0933 7.10286 39.0933 7.40234V12.5977H37.2964V0H39.0933V4.50195C39.2821 4.31315 39.4969 4.14388 39.7378 3.99414C39.9526 3.87695 40.2163 3.76628 40.5288 3.66211C40.8413 3.55143 41.1961 3.49609 41.5933 3.49609Z" fill="#F5F4ED"/>
+        <path d="M33.4973 9.59961C33.4973 9.99675 33.6308 10.3288 33.8977 10.5957C34.1646 10.8626 34.4967 10.9961 34.8938 10.9961C34.9589 10.9961 35.0273 10.9928 35.0989 10.9863C35.177 10.9798 35.2486 10.9701 35.3137 10.957C35.3788 10.944 35.4407 10.9245 35.4993 10.8984V12.5C35.4211 12.5391 35.3267 12.5716 35.2161 12.5977C35.0142 12.6628 34.7766 12.6953 34.5032 12.6953C34.106 12.6953 33.7349 12.6237 33.3899 12.4805C33.0514 12.3307 32.7551 12.1224 32.5012 11.8555C32.2473 11.5885 32.0487 11.2663 31.9055 10.8887C31.7688 10.5111 31.7004 10.0814 31.7004 9.59961V5.29297H30.0989V3.59375H30.802C31.1471 3.59375 31.4335 3.48307 31.6614 3.26172C31.8892 3.03385 32.0032 2.7474 32.0032 2.40234V1.20117H33.4973V3.59375H35.4993V5.29297H33.4973V9.59961Z" fill="#F5F4ED"/>
+        <path d="M25.0886 3.49609C25.6876 3.49609 26.2475 3.61003 26.7683 3.83789C27.2891 4.06576 27.7449 4.38477 28.1355 4.79492C28.5326 5.19857 28.8419 5.68034 29.0632 6.24023C29.2846 6.80013 29.3953 7.41862 29.3953 8.0957C29.3953 8.77279 29.2846 9.39453 29.0632 9.96094C28.8419 10.5208 28.5326 11.0059 28.1355 11.416C27.7449 11.8197 27.2891 12.1354 26.7683 12.3633C26.2475 12.5846 25.6876 12.6953 25.0886 12.6953C24.6589 12.6953 24.2911 12.6465 23.9851 12.5488C23.6791 12.4512 23.422 12.334 23.2136 12.1973C22.9727 12.0475 22.7644 11.8815 22.5886 11.6992V15.8008H20.7917V3.59375H22.0906L22.491 4.50195C22.6667 4.31315 22.8718 4.14388 23.1062 3.99414C23.321 3.87695 23.5912 3.76628 23.9167 3.66211C24.2423 3.55143 24.6329 3.49609 25.0886 3.49609ZM24.991 10.9961C25.336 10.9961 25.6648 10.9277 25.9773 10.791C26.2898 10.6478 26.5665 10.446 26.8074 10.1855C27.0483 9.92513 27.2371 9.61914 27.3738 9.26758C27.517 8.91602 27.5886 8.52539 27.5886 8.0957C27.5886 7.66602 27.517 7.27539 27.3738 6.92383C27.2371 6.57227 27.0483 6.26628 26.8074 6.00586C26.5665 5.74544 26.2898 5.54688 25.9773 5.41016C25.6648 5.26693 25.336 5.19531 24.991 5.19531C24.6459 5.19531 24.3139 5.26693 23.9949 5.41016C23.6824 5.54688 23.4057 5.74544 23.1648 6.00586C22.9304 6.26628 22.7416 6.57552 22.5984 6.93359C22.4617 7.28516 22.3933 7.67253 22.3933 8.0957C22.3933 8.52539 22.4617 8.91602 22.5984 9.26758C22.7416 9.61914 22.9304 9.92513 23.1648 10.1855C23.4057 10.446 23.6824 10.6478 23.9949 10.791C24.3139 10.9277 24.6459 10.9961 24.991 10.9961Z" fill="#F5F4ED"/>
+        <path d="M19.0923 10C18.9425 10.3711 18.7537 10.7194 18.5259 11.0449C18.298 11.3704 18.0246 11.6569 17.7056 11.9043C17.3866 12.1517 17.0155 12.347 16.5923 12.4902C16.1756 12.627 15.7069 12.6953 15.186 12.6953C14.5871 12.6953 14.0272 12.5846 13.5063 12.3633C12.9855 12.1354 12.5298 11.8197 12.1392 11.416C11.7485 11.0059 11.4425 10.5208 11.2212 9.96094C10.9998 9.40104 10.8892 8.7793 10.8892 8.0957C10.8892 7.41862 10.9998 6.80013 11.2212 6.24023C11.4425 5.68034 11.742 5.19857 12.1196 4.79492C12.4972 4.38477 12.9432 4.06576 13.4575 3.83789C13.9718 3.61003 14.5155 3.49609 15.0884 3.49609C15.6613 3.49609 16.2049 3.61003 16.7192 3.83789C17.2336 4.06576 17.6795 4.38477 18.0571 4.79492C18.4347 5.19857 18.7342 5.68034 18.9556 6.24023C19.1769 6.80013 19.2876 7.41862 19.2876 8.0957C19.2876 8.19987 19.2811 8.30404 19.2681 8.4082C19.255 8.50586 19.242 8.59049 19.229 8.66211C19.216 8.75326 19.203 8.83138 19.1899 8.89648H12.7837C12.8097 9.17643 12.8911 9.44336 13.0278 9.69727C13.1646 9.95117 13.3338 10.1758 13.5356 10.3711C13.744 10.5599 13.9914 10.7129 14.2778 10.8301C14.5643 10.9408 14.867 10.9961 15.186 10.9961C15.7329 10.9961 16.1659 10.8789 16.4849 10.6445C16.8104 10.4102 17.0448 10.1953 17.188 10H19.0923ZM15.0884 5.19531C14.4894 5.19531 13.9816 5.40039 13.5649 5.81055C13.1548 6.21419 12.8944 6.74479 12.7837 7.40234H17.5884C17.4842 6.7513 17.2173 6.2207 16.7876 5.81055C16.3644 5.40039 15.798 5.19531 15.0884 5.19531Z" fill="#F5F4ED"/>
+        <path d="M3.79883 10.8008C4.31966 10.8008 4.82422 10.6868 5.3125 10.459C5.80729 10.2311 6.24349 9.91862 6.62109 9.52148C7.00521 9.11784 7.31445 8.64258 7.54883 8.0957C7.7832 7.54883 7.90039 6.94987 7.90039 6.29883C7.90039 5.64779 7.7832 5.04883 7.54883 4.50195C7.31445 3.95508 7.00521 3.48307 6.62109 3.08594C6.24349 2.68229 5.80729 2.36654 5.3125 2.13867C4.82422 1.91081 4.31966 1.79688 3.79883 1.79688H1.89453V10.8008H3.79883ZM0 12.5977V0H3.79883C4.59961 0 5.36133 0.16276 6.08398 0.488281C6.81315 0.813802 7.45117 1.26302 7.99805 1.83594C8.54492 2.40885 8.98112 3.07617 9.30664 3.83789C9.63216 4.59961 9.79492 5.41992 9.79492 6.29883C9.79492 7.17773 9.63216 7.99805 9.30664 8.75977C8.98112 9.52148 8.54492 10.1888 7.99805 10.7617C7.45117 11.3346 6.81315 11.7839 6.08398 12.1094C5.36133 12.4349 4.59961 12.5977 3.79883 12.5977H0Z" fill="#F5F4ED"/>
+      </svg></div>
+  <div style="margin-top:10px;font-weight:700;font-size:14px">Console</div>
+  <div class="pg-sub" style="margin-top:5px">INTERNAL. ACCESS KEY REQUIRED.</div>
+  <input type="email" id="gateMail" placeholder="Work email" autocomplete="email">
+  <input type="password" id="gateKey" placeholder="Access key" autocomplete="current-password">
+  <button class="go" onclick="enter()">Enter console</button>
+  <button class="ghostgo" onclick="requestKey()" id="reqBtn">Request access key</button>
+  <div class="err" id="gateErr"></div>
+  <div class="ok" id="gateOk"></div>
+</div>
+
+<div id="shell" class="app" style="display:none">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3.61696 10.8627C3.42884 10.485 3.97595 10.178 4.21765 10.5257L7.55791 15.3303C8.11865 16.1369 9.1297 16.5271 10.1061 16.3138L11.7391 15.9571C12.0627 15.8864 12.2945 16.2549 12.0827 16.5032L10.9431 17.8393C10.4895 18.371 10.2973 19.069 10.4169 19.7502L10.7309 21.5386C10.7852 21.8481 10.4145 22.0564 10.1662 21.8558L8.73159 20.697C8.18516 20.2557 7.46786 20.0687 6.76786 20.185L4.9788 20.4824C4.65515 20.5362 4.44235 20.1636 4.66023 19.9245L5.82676 18.6447C6.47904 17.929 6.62472 16.9017 6.19598 16.0409L3.61696 10.8627Z" fill="#2B2B28"/>
+          <path d="M5.25441 2.53931C5.06629 2.16159 5.61341 1.85459 5.85511 2.20225L9.19536 7.00691C9.7561 7.81349 10.7672 8.20372 11.7436 7.99042L13.3766 7.63371C13.7002 7.56302 13.932 7.93146 13.7202 8.17978L12.5805 9.51586C12.127 10.0476 11.9348 10.7456 12.0544 11.4268L12.3683 13.2152C12.4226 13.5247 12.052 13.733 11.8037 13.5324L10.369 12.3737C9.82261 11.9323 9.10531 11.7453 8.40531 11.8616L6.61625 12.159C6.2926 12.2128 6.07981 11.8402 6.29768 11.6011L7.46421 10.3213C8.11649 9.60562 8.26217 8.57832 7.83343 7.7175L5.25441 2.53931Z" fill="#2B2B28"/>
+          <path d="M13.3216 5.39534C13.1334 5.01762 13.6805 4.71062 13.9222 5.05828L17.2625 9.86293C17.8232 10.6695 18.8343 11.0597 19.8107 10.8464L21.4437 10.4897C21.7673 10.419 21.9991 10.7875 21.7873 11.0358L20.6477 12.3719C20.1941 12.9036 20.0019 13.6016 20.1215 14.2828L20.4354 16.0712C20.4898 16.3807 20.1191 16.589 19.8708 16.3885L18.4362 15.2297C17.8898 14.7883 17.1724 14.6013 16.4725 14.7176L14.6834 15.015C14.3597 15.0688 14.1469 14.6962 14.3648 14.4572L15.5313 13.1773C16.1836 12.4616 16.3293 11.4343 15.9006 10.5735L13.3216 5.39534Z" fill="#2B2B28"/>
+        </svg>
+      </div>
+      <svg class="brand-name" width="76" height="15" viewBox="0 0 80 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Depthdata">
+        <path d="M75.5989 3.49609C76.1197 3.49609 76.595 3.58073 77.0247 3.75C77.4609 3.91276 77.8319 4.13737 78.1379 4.42383C78.4439 4.71029 78.6816 5.04883 78.8508 5.43945C79.0201 5.82357 79.1047 6.24349 79.1047 6.69922V12.5977H77.8059L77.4055 11.6992C77.2297 11.888 77.0214 12.054 76.7805 12.1973C76.5657 12.3275 76.2955 12.4447 75.97 12.5488C75.6444 12.6465 75.2538 12.6953 74.7981 12.6953C73.7955 12.6953 73.0273 12.4479 72.4934 11.9531C71.9661 11.4518 71.7024 10.8008 71.7024 10C71.7024 9.54427 71.787 9.13411 71.9563 8.76953C72.1321 8.39844 72.4283 8.08594 72.845 7.83203C73.2681 7.57161 73.8378 7.36979 74.554 7.22656C75.2766 7.07682 76.1913 7.00195 77.2981 7.00195V6.69922C77.2981 6.24349 77.1549 5.87891 76.8684 5.60547C76.5819 5.33203 76.1588 5.19531 75.5989 5.19531C74.9999 5.19531 74.5637 5.30273 74.2903 5.51758C74.0168 5.73242 73.8541 5.99284 73.802 6.29883H72.0051C72.0572 5.49805 72.3925 4.83073 73.011 4.29688C73.6295 3.76302 74.4921 3.49609 75.5989 3.49609ZM74.9055 11.0938C75.6672 11.0938 76.2564 10.8984 76.6731 10.5078C77.0898 10.1172 77.2981 9.64193 77.2981 9.08203V8.59375C76.4973 8.59375 75.8495 8.63281 75.3547 8.71094C74.8665 8.78255 74.4823 8.88346 74.2024 9.01367C73.9224 9.13737 73.7336 9.29362 73.636 9.48242C73.5448 9.66471 73.4993 9.86979 73.4993 10.0977C73.4993 10.3516 73.6197 10.5827 73.8606 10.791C74.1015 10.9928 74.4498 11.0938 74.9055 11.0938Z" fill="#F5F4ED"/>
+        <path d="M68.5964 9.59961C68.5964 9.99675 68.7299 10.3288 68.9968 10.5957C69.2638 10.8626 69.5958 10.9961 69.9929 10.9961C70.058 10.9961 70.1264 10.9928 70.198 10.9863C70.2761 10.9798 70.3477 10.9701 70.4128 10.957C70.4779 10.944 70.5398 10.9245 70.5984 10.8984V12.5C70.5203 12.5391 70.4259 12.5716 70.3152 12.5977C70.1134 12.6628 69.8757 12.6953 69.6023 12.6953C69.2052 12.6953 68.8341 12.6237 68.489 12.4805C68.1505 12.3307 67.8542 12.1224 67.6003 11.8555C67.3464 11.5885 67.1479 11.2663 67.0046 10.8887C66.8679 10.5111 66.7996 10.0814 66.7996 9.59961V5.29297H65.198V3.59375H65.9011C66.2462 3.59375 66.5326 3.48307 66.7605 3.26172C66.9884 3.03385 67.1023 2.7474 67.1023 2.40234V1.20117H68.5964V3.59375H70.5984V5.29297H68.5964V9.59961Z" fill="#F5F4ED"/>
+        <path d="M60.7935 3.49609C61.3143 3.49609 61.7896 3.58073 62.2192 3.75C62.6554 3.91276 63.0265 4.13737 63.3325 4.42383C63.6385 4.71029 63.8761 5.04883 64.0454 5.43945C64.2147 5.82357 64.2993 6.24349 64.2993 6.69922V12.5977H63.0005L62.6001 11.6992C62.4243 11.888 62.216 12.054 61.9751 12.1973C61.7603 12.3275 61.4901 12.4447 61.1646 12.5488C60.839 12.6465 60.4484 12.6953 59.9927 12.6953C58.9901 12.6953 58.2218 12.4479 57.688 11.9531C57.1606 11.4518 56.897 10.8008 56.897 10C56.897 9.54427 56.9816 9.13411 57.1509 8.76953C57.3267 8.39844 57.6229 8.08594 58.0396 7.83203C58.4627 7.57161 59.0324 7.36979 59.7485 7.22656C60.4712 7.07682 61.3859 7.00195 62.4927 7.00195V6.69922C62.4927 6.24349 62.3494 5.87891 62.063 5.60547C61.7765 5.33203 61.3534 5.19531 60.7935 5.19531C60.1945 5.19531 59.7583 5.30273 59.4849 5.51758C59.2114 5.73242 59.0487 5.99284 58.9966 6.29883H57.1997C57.2518 5.49805 57.5871 4.83073 58.2056 4.29688C58.8241 3.76302 59.6867 3.49609 60.7935 3.49609ZM60.1001 11.0938C60.8618 11.0938 61.451 10.8984 61.8677 10.5078C62.2843 10.1172 62.4927 9.64193 62.4927 9.08203V8.59375C61.6919 8.59375 61.0441 8.63281 60.5493 8.71094C60.061 8.78255 59.6769 8.88346 59.397 9.01367C59.117 9.13737 58.9282 9.29362 58.8306 9.48242C58.7394 9.66471 58.6938 9.86979 58.6938 10.0977C58.6938 10.3516 58.8143 10.5827 59.0552 10.791C59.2961 10.9928 59.6444 11.0938 60.1001 11.0938Z" fill="#F5F4ED"/>
+        <path d="M50.8906 12.6953C50.2917 12.6953 49.7318 12.5846 49.2109 12.3633C48.6901 12.1354 48.2311 11.8197 47.834 11.416C47.4434 11.0059 47.1374 10.5208 46.916 9.96094C46.7012 9.40104 46.5938 8.7793 46.5938 8.0957C46.5938 7.41862 46.7012 6.80013 46.916 6.24023C47.1374 5.68034 47.4434 5.19857 47.834 4.79492C48.2311 4.38477 48.6901 4.06576 49.2109 3.83789C49.7318 3.61003 50.2917 3.49609 50.8906 3.49609C51.3203 3.49609 51.6882 3.55143 51.9941 3.66211C52.3001 3.76628 52.5605 3.87695 52.7754 3.99414C53.0163 4.14388 53.2214 4.31315 53.3906 4.50195V0H55.1875V12.5977H53.8887L53.4883 11.6992C53.3125 11.888 53.1074 12.054 52.873 12.1973C52.6582 12.3275 52.388 12.4447 52.0625 12.5488C51.737 12.6465 51.3464 12.6953 50.8906 12.6953ZM50.9883 5.19531C50.6432 5.19531 50.3145 5.26693 50.002 5.41016C49.6895 5.54688 49.4128 5.74544 49.1719 6.00586C48.931 6.26628 48.7389 6.57552 48.5957 6.93359C48.459 7.28516 48.3906 7.67253 48.3906 8.0957C48.3906 8.52539 48.459 8.91602 48.5957 9.26758C48.7389 9.61914 48.931 9.92513 49.1719 10.1855C49.4128 10.446 49.6895 10.6478 50.002 10.791C50.3145 10.9277 50.6432 10.9961 50.9883 10.9961C51.3333 10.9961 51.6621 10.9277 51.9746 10.791C52.2936 10.6478 52.5703 10.446 52.8047 10.1855C53.0456 9.92513 53.2344 9.61914 53.3711 9.26758C53.5143 8.91602 53.5859 8.52539 53.5859 8.0957C53.5859 7.66602 53.5143 7.27539 53.3711 6.92383C53.2344 6.57227 53.0456 6.26628 52.8047 6.00586C52.5703 5.74544 52.2936 5.54688 51.9746 5.41016C51.6621 5.26693 51.3333 5.19531 50.9883 5.19531Z" fill="#F5F4ED"/>
+        <path d="M41.5933 3.49609C42.0881 3.49609 42.5535 3.59375 42.9897 3.78906C43.4325 3.98438 43.8166 4.2513 44.1421 4.58984C44.4741 4.92839 44.7313 5.33854 44.9136 5.82031C45.1024 6.29557 45.1968 6.82292 45.1968 7.40234V12.5977H43.3999V7.40234C43.3999 7.10938 43.3413 6.82943 43.2241 6.5625C43.1134 6.29557 42.9604 6.0612 42.7651 5.85938C42.5763 5.65755 42.355 5.49805 42.1011 5.38086C41.8472 5.25716 41.5802 5.19531 41.3003 5.19531C40.9943 5.19531 40.7078 5.25716 40.4409 5.38086C40.174 5.49805 39.9396 5.65755 39.7378 5.85938C39.536 6.0612 39.3765 6.29557 39.2593 6.5625C39.1486 6.82292 39.0933 7.10286 39.0933 7.40234V12.5977H37.2964V0H39.0933V4.50195C39.2821 4.31315 39.4969 4.14388 39.7378 3.99414C39.9526 3.87695 40.2163 3.76628 40.5288 3.66211C40.8413 3.55143 41.1961 3.49609 41.5933 3.49609Z" fill="#F5F4ED"/>
+        <path d="M33.4973 9.59961C33.4973 9.99675 33.6308 10.3288 33.8977 10.5957C34.1646 10.8626 34.4967 10.9961 34.8938 10.9961C34.9589 10.9961 35.0273 10.9928 35.0989 10.9863C35.177 10.9798 35.2486 10.9701 35.3137 10.957C35.3788 10.944 35.4407 10.9245 35.4993 10.8984V12.5C35.4211 12.5391 35.3267 12.5716 35.2161 12.5977C35.0142 12.6628 34.7766 12.6953 34.5032 12.6953C34.106 12.6953 33.7349 12.6237 33.3899 12.4805C33.0514 12.3307 32.7551 12.1224 32.5012 11.8555C32.2473 11.5885 32.0487 11.2663 31.9055 10.8887C31.7688 10.5111 31.7004 10.0814 31.7004 9.59961V5.29297H30.0989V3.59375H30.802C31.1471 3.59375 31.4335 3.48307 31.6614 3.26172C31.8892 3.03385 32.0032 2.7474 32.0032 2.40234V1.20117H33.4973V3.59375H35.4993V5.29297H33.4973V9.59961Z" fill="#F5F4ED"/>
+        <path d="M25.0886 3.49609C25.6876 3.49609 26.2475 3.61003 26.7683 3.83789C27.2891 4.06576 27.7449 4.38477 28.1355 4.79492C28.5326 5.19857 28.8419 5.68034 29.0632 6.24023C29.2846 6.80013 29.3953 7.41862 29.3953 8.0957C29.3953 8.77279 29.2846 9.39453 29.0632 9.96094C28.8419 10.5208 28.5326 11.0059 28.1355 11.416C27.7449 11.8197 27.2891 12.1354 26.7683 12.3633C26.2475 12.5846 25.6876 12.6953 25.0886 12.6953C24.6589 12.6953 24.2911 12.6465 23.9851 12.5488C23.6791 12.4512 23.422 12.334 23.2136 12.1973C22.9727 12.0475 22.7644 11.8815 22.5886 11.6992V15.8008H20.7917V3.59375H22.0906L22.491 4.50195C22.6667 4.31315 22.8718 4.14388 23.1062 3.99414C23.321 3.87695 23.5912 3.76628 23.9167 3.66211C24.2423 3.55143 24.6329 3.49609 25.0886 3.49609ZM24.991 10.9961C25.336 10.9961 25.6648 10.9277 25.9773 10.791C26.2898 10.6478 26.5665 10.446 26.8074 10.1855C27.0483 9.92513 27.2371 9.61914 27.3738 9.26758C27.517 8.91602 27.5886 8.52539 27.5886 8.0957C27.5886 7.66602 27.517 7.27539 27.3738 6.92383C27.2371 6.57227 27.0483 6.26628 26.8074 6.00586C26.5665 5.74544 26.2898 5.54688 25.9773 5.41016C25.6648 5.26693 25.336 5.19531 24.991 5.19531C24.6459 5.19531 24.3139 5.26693 23.9949 5.41016C23.6824 5.54688 23.4057 5.74544 23.1648 6.00586C22.9304 6.26628 22.7416 6.57552 22.5984 6.93359C22.4617 7.28516 22.3933 7.67253 22.3933 8.0957C22.3933 8.52539 22.4617 8.91602 22.5984 9.26758C22.7416 9.61914 22.9304 9.92513 23.1648 10.1855C23.4057 10.446 23.6824 10.6478 23.9949 10.791C24.3139 10.9277 24.6459 10.9961 24.991 10.9961Z" fill="#F5F4ED"/>
+        <path d="M19.0923 10C18.9425 10.3711 18.7537 10.7194 18.5259 11.0449C18.298 11.3704 18.0246 11.6569 17.7056 11.9043C17.3866 12.1517 17.0155 12.347 16.5923 12.4902C16.1756 12.627 15.7069 12.6953 15.186 12.6953C14.5871 12.6953 14.0272 12.5846 13.5063 12.3633C12.9855 12.1354 12.5298 11.8197 12.1392 11.416C11.7485 11.0059 11.4425 10.5208 11.2212 9.96094C10.9998 9.40104 10.8892 8.7793 10.8892 8.0957C10.8892 7.41862 10.9998 6.80013 11.2212 6.24023C11.4425 5.68034 11.742 5.19857 12.1196 4.79492C12.4972 4.38477 12.9432 4.06576 13.4575 3.83789C13.9718 3.61003 14.5155 3.49609 15.0884 3.49609C15.6613 3.49609 16.2049 3.61003 16.7192 3.83789C17.2336 4.06576 17.6795 4.38477 18.0571 4.79492C18.4347 5.19857 18.7342 5.68034 18.9556 6.24023C19.1769 6.80013 19.2876 7.41862 19.2876 8.0957C19.2876 8.19987 19.2811 8.30404 19.2681 8.4082C19.255 8.50586 19.242 8.59049 19.229 8.66211C19.216 8.75326 19.203 8.83138 19.1899 8.89648H12.7837C12.8097 9.17643 12.8911 9.44336 13.0278 9.69727C13.1646 9.95117 13.3338 10.1758 13.5356 10.3711C13.744 10.5599 13.9914 10.7129 14.2778 10.8301C14.5643 10.9408 14.867 10.9961 15.186 10.9961C15.7329 10.9961 16.1659 10.8789 16.4849 10.6445C16.8104 10.4102 17.0448 10.1953 17.188 10H19.0923ZM15.0884 5.19531C14.4894 5.19531 13.9816 5.40039 13.5649 5.81055C13.1548 6.21419 12.8944 6.74479 12.7837 7.40234H17.5884C17.4842 6.7513 17.2173 6.2207 16.7876 5.81055C16.3644 5.40039 15.798 5.19531 15.0884 5.19531Z" fill="#F5F4ED"/>
+        <path d="M3.79883 10.8008C4.31966 10.8008 4.82422 10.6868 5.3125 10.459C5.80729 10.2311 6.24349 9.91862 6.62109 9.52148C7.00521 9.11784 7.31445 8.64258 7.54883 8.0957C7.7832 7.54883 7.90039 6.94987 7.90039 6.29883C7.90039 5.64779 7.7832 5.04883 7.54883 4.50195C7.31445 3.95508 7.00521 3.48307 6.62109 3.08594C6.24349 2.68229 5.80729 2.36654 5.3125 2.13867C4.82422 1.91081 4.31966 1.79688 3.79883 1.79688H1.89453V10.8008H3.79883ZM0 12.5977V0H3.79883C4.59961 0 5.36133 0.16276 6.08398 0.488281C6.81315 0.813802 7.45117 1.26302 7.99805 1.83594C8.54492 2.40885 8.98112 3.07617 9.30664 3.83789C9.63216 4.59961 9.79492 5.41992 9.79492 6.29883C9.79492 7.17773 9.63216 7.99805 9.30664 8.75977C8.98112 9.52148 8.54492 10.1888 7.99805 10.7617C7.45117 11.3346 6.81315 11.7839 6.08398 12.1094C5.36133 12.4349 4.59961 12.5977 3.79883 12.5977H0Z" fill="#F5F4ED"/>
+      </svg><span class="brand-tag">CONSOLE</span></div><nav class="nav">
+  <div class="nav-label">Overview</div>
+  <a class="active" data-v="pulse" onclick="show('pulse')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Pulse</a>
+  <div class="nav-label" style="margin-top:10px">Revenue &amp; accounts</div>
+  <a data-v="comp" onclick="show('comp')"><svg viewBox="0 0 24 24"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M4 21h16M8 8h2M8 12h2M8 16h2M17 13h1M17 17h1"/></svg>Companies<span class="cnt" id="nComp"></span></a>
+  <a data-v="req" onclick="show('req')"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.5a3 3 0 0 1 0 5.5M18 19a5 5 0 0 0-3-4.6"/></svg>Demo requests<span class="cnt" id="nReq"></span></a>
+  <a data-v="em" onclick="show('em')"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>Emails</a>
+  <div class="nav-label" style="margin-top:10px">Support</div>
+  <a data-v="tk" onclick="show('tk')"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M9.5 13h6M9.5 16.5h6"/></svg>Tickets<span class="cnt" id="nTk"></span></a>
+  <div class="nav-label" style="margin-top:10px">Platform</div>
+  <a data-v="cx" onclick="show('cx')"><svg viewBox="0 0 24 24"><path d="M9 17H7a5 5 0 0 1 0-10h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/></svg>Connectors<span class="cnt" id="nCx"></span></a>
+  <a data-v="au" onclick="show('au')"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Audit log</a>
+  <div class="nav-label" style="margin-top:10px">Admin</div>
+  <a data-v="us" onclick="show('us')"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.4a3.2 3.2 0 0 1 0 5.2M17.5 13.6A5.5 5.5 0 0 1 20.5 19"/></svg>Console users</a>
+  <a data-v="se" onclick="show('se')"><svg viewBox="0 0 24 24"><path d="M20.3499 8.92293L19.9837 8.7192C19.9269 8.68756 19.8989 8.67169 19.8714 8.65524C19.5983 8.49165 19.3682 8.26564 19.2002 7.99523C19.1833 7.96802 19.1674 7.93949 19.1348 7.8831C19.1023 7.82677 19.0858 7.79823 19.0706 7.76998C18.92 7.48866 18.8385 7.17515 18.8336 6.85606C18.8331 6.82398 18.8332 6.79121 18.8343 6.72604L18.8415 6.30078C18.8529 5.62025 18.8587 5.27894 18.763 4.97262C18.6781 4.70053 18.536 4.44993 18.3462 4.23725C18.1317 3.99685 17.8347 3.82534 17.2402 3.48276L16.7464 3.1982C16.1536 2.85658 15.8571 2.68571 15.5423 2.62057C15.2639 2.56294 14.9765 2.56561 14.6991 2.62789C14.3859 2.69819 14.0931 2.87351 13.5079 3.22396L13.5045 3.22555L13.1507 3.43741C13.0948 3.47091 13.0665 3.48779 13.0384 3.50338C12.7601 3.6581 12.4495 3.74365 12.1312 3.75387C12.0992 3.7549 12.0665 3.7549 12.0013 3.7549C11.9365 3.7549 11.9024 3.7549 11.8704 3.75387C11.5515 3.74361 11.2402 3.65759 10.9615 3.50224C10.9334 3.48658 10.9056 3.46956 10.8496 3.4359L10.4935 3.22213C9.90422 2.86836 9.60915 2.69121 9.29427 2.62057C9.0157 2.55807 8.72737 2.55634 8.44791 2.61471C8.13236 2.68062 7.83577 2.85276 7.24258 3.19703L7.23994 3.1982L6.75228 3.48124L6.74688 3.48454C6.15904 3.82572 5.86441 3.99672 5.6517 4.23614C5.46294 4.4486 5.32185 4.69881 5.2374 4.97018C5.14194 5.27691 5.14703 5.61896 5.15853 6.3027L5.16568 6.72736C5.16676 6.79166 5.16864 6.82362 5.16817 6.85525C5.16343 7.17499 5.08086 7.48914 4.92974 7.77096C4.9148 7.79883 4.8987 7.8267 4.86654 7.88237C4.83436 7.93809 4.81877 7.96579 4.80209 7.99268C4.63336 8.26452 4.40214 8.49186 4.12733 8.65572C4.10015 8.67193 4.0715 8.68752 4.01521 8.71871L3.65365 8.91908C3.05208 9.25245 2.75137 9.41928 2.53256 9.65669C2.33898 9.86672 2.19275 10.1158 2.10349 10.3872C2.00259 10.6939 2.00267 11.0378 2.00424 11.7255L2.00551 12.2877C2.00706 12.9708 2.00919 13.3122 2.11032 13.6168C2.19979 13.8863 2.34495 14.134 2.53744 14.3427C2.75502 14.5787 3.05274 14.7445 3.64974 15.0766L4.00808 15.276C4.06907 15.3099 4.09976 15.3266 4.12917 15.3444C4.40148 15.5083 4.63089 15.735 4.79818 16.0053C4.81625 16.0345 4.8336 16.0648 4.8683 16.1255C4.90256 16.1853 4.92009 16.2152 4.93594 16.2452C5.08261 16.5229 5.16114 16.8315 5.16649 17.1455C5.16707 17.1794 5.16658 17.2137 5.16541 17.2827L5.15853 17.6902C5.14695 18.3763 5.1419 18.7197 5.23792 19.0273C5.32287 19.2994 5.46484 19.55 5.65463 19.7627C5.86915 20.0031 6.16655 20.1745 6.76107 20.5171L7.25478 20.8015C7.84763 21.1432 8.14395 21.3138 8.45869 21.379C8.73714 21.4366 9.02464 21.4344 9.30209 21.3721C9.61567 21.3017 9.90948 21.1258 10.4964 20.7743L10.8502 20.5625C10.9062 20.5289 10.9346 20.5121 10.9626 20.4965C11.2409 20.3418 11.5512 20.2558 11.8695 20.2456C11.9015 20.2446 11.9342 20.2446 11.9994 20.2446C12.0648 20.2446 12.0974 20.2446 12.1295 20.2456C12.4484 20.2559 12.7607 20.3422 13.0394 20.4975C13.0639 20.5112 13.0885 20.526 13.1316 20.5519L13.5078 20.7777C14.0971 21.1315 14.3916 21.3081 14.7065 21.3788C14.985 21.4413 15.2736 21.4438 15.5531 21.3855C15.8685 21.3196 16.1657 21.1471 16.7586 20.803L17.2536 20.5157C17.8418 20.1743 18.1367 20.0031 18.3495 19.7636C18.5383 19.5512 18.6796 19.3011 18.764 19.0297C18.8588 18.7252 18.8531 18.3858 18.8417 17.7119L18.8343 17.2724C18.8332 17.2081 18.8331 17.1761 18.8336 17.1445C18.8383 16.8247 18.9195 16.5104 19.0706 16.2286C19.0856 16.2007 19.1018 16.1726 19.1338 16.1171C19.166 16.0615 19.1827 16.0337 19.1994 16.0068C19.3681 15.7349 19.5995 15.5074 19.8744 15.3435C19.9012 15.3275 19.9289 15.3122 19.9838 15.2818L19.9857 15.2809L20.3472 15.0805C20.9488 14.7472 21.2501 14.5801 21.4689 14.3427C21.6625 14.1327 21.8085 13.8839 21.8978 13.6126C21.9981 13.3077 21.9973 12.9658 21.9958 12.2861L21.9945 11.7119C21.9929 11.0287 21.9921 10.6874 21.891 10.3828C21.8015 10.1133 21.6555 9.86561 21.463 9.65685C21.2457 9.42111 20.9475 9.25526 20.3517 8.92378L20.3499 8.92293Z"/><path d="M8.00033 12C8.00033 14.2091 9.79119 16 12.0003 16C14.2095 16 16.0003 14.2091 16.0003 12C16.0003 9.79082 14.2095 7.99996 12.0003 7.99996C9.79119 7.99996 8.00033 9.79082 8.00033 12Z"/></svg>Settings</a>
+</nav>
+    <div class="side-foot-group">
+      <span class="conn"><span class="fd"></span>LIVE</span>
+      <div class="profile">
+        <div class="pf-av" id="pfAv">O</div>
+        <div class="pf-body"><div class="pf-name" id="pfName"></div><div class="pf-role" id="pfRole"></div></div>
+        <button class="pf-out" aria-label="Lock console" onclick="signout()"><svg viewBox="0 0 24 24"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2M9 12h11M17 9l3 3-3 3"/></svg></button>
+      </div>
+      <div class="side-ver">console v3.0 &middot; internal</div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="bar-inner">
+      <div><div class="pg-title" id="pgTitle">Pulse</div><div class="pg-sub" id="pgSub">COMMAND CENTER</div></div>
+      <span id="ddClock"></span>
+      <div class="hdr-actions"><button class="pillbtn" onclick="refresh()">Refresh</button></div>
+    </div></header>
+    <div class="errbar" id="errbar"><svg viewBox="0 0 24 24"><path d="M12 4 2.8 19.4A1 1 0 0 0 3.7 21h16.6a1 1 0 0 0 .9-1.6L12 4ZM12 10v4M12 17.5h.01"/></svg> Live data unavailable. Showing sample sections only. <button class="pillbtn sm" onclick="boot()">Retry</button></div>
+    <div class="content">
+      
+<div class="view" id="v-pulse">
+  <div class="grid4" id="pulseKpis">
+    <div class="card kpi"><div style="display:flex;align-items:center;justify-content:space-between"><span class="eyebrow">MRR</span><span class="cf sample">SAMPLE</span></div><div class="v" id="kMrr">$0</div><div class="s">monthly recurring revenue</div></div>
+    <div class="card kpi"><div style="display:flex;align-items:center;justify-content:space-between"><span class="eyebrow">Active companies</span><span class="cf sample">SAMPLE</span></div><div class="v" id="kComp">0</div><div class="s">paying or in trial</div></div>
+    <div class="card kpi"><div style="display:flex;align-items:center;justify-content:space-between"><span class="eyebrow">New requests</span><span class="cf live">LIVE</span></div><div class="v" id="kNew">0</div><div class="s">waiting for first touch</div></div>
+    <div class="card kpi"><div style="display:flex;align-items:center;justify-content:space-between"><span class="eyebrow">Open tickets</span><span class="cf live">LIVE</span></div><div class="v" id="kOpen">0</div><div class="s">bugs, feedback and support</div></div>
+  </div>
+  <div class="sect"><span class="eyebrow">Needs attention</span><span class="line"></span><span class="mini" id="attCount"></span></div>
+  <div class="card" id="attList"></div>
+  <div class="section-gap"></div>
+  <div class="grid2">
+    <div>
+      <div class="sect" style="margin-top:0"><span class="eyebrow">Lead funnel</span><span class="line"></span><span class="cf live">LIVE</span></div>
+      <div class="card"><div class="funnel" id="funnel"></div></div>
+    </div>
+    <div>
+      <div class="sect" style="margin-top:0"><span class="eyebrow">Recent activity</span><span class="line"></span></div>
+      <div class="card feed" id="feed"></div>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-comp" style="display:none">
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/></svg><input type="text" id="coSearch" placeholder="Search company or domain" oninput="renderComp()"></div>
+    <div class="chips" id="coPlan">
+      <button class="chip on" data-v="all" onclick="coF('plan','all',this)">All plans</button>
+      <button class="chip" data-v="free" onclick="coF('plan','free',this)">Free</button>
+      <button class="chip" data-v="starter" onclick="coF('plan','starter',this)">Starter</button>
+      <button class="chip" data-v="growth" onclick="coF('plan','growth',this)">Growth</button>
+      <button class="chip" data-v="enterprise" onclick="coF('plan','enterprise',this)">Enterprise</button>
+    </div>
+    <div class="chips" id="coSt">
+      <button class="chip on" data-v="all" onclick="coF('st','all',this)">Any status</button>
+      <button class="chip" data-v="active" onclick="coF('st','active',this)">Active</button>
+      <button class="chip" data-v="trial" onclick="coF('st','trial',this)">Trial</button>
+      <button class="chip" data-v="suspended" onclick="coF('st','suspended',this)">Suspended</button>
+      <button class="chip" data-v="churned" onclick="coF('st','churned',this)">Churned</button>
+    </div>
+    <span class="cf sample" style="margin-left:auto">SAMPLE until real workspaces</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>Company</th><th>Plan</th><th>Seats</th><th>MRR</th><th>Health</th><th>Status</th><th>Last activity</th><th></th></tr></thead>
+    <tbody id="tblComp"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-req" style="display:none">
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/></svg><input type="text" id="rqSearch" placeholder="Search name, email, company" oninput="renderReq()"></div>
+    <div class="chips" id="rqSt">
+      <button class="chip on" data-v="all" onclick="rqF('all',this)">All</button>
+      <button class="chip" data-v="new" onclick="rqF('new',this)">New</button>
+      <button class="chip" data-v="contacted" onclick="rqF('contacted',this)">Contacted</button>
+      <button class="chip" data-v="invited" onclick="rqF('invited',this)">Invited</button>
+      <button class="chip" data-v="closed" onclick="rqF('closed',this)">Closed</button>
+    </div>
+    <div class="bulk" id="bulkBar"><span id="bulkN">0 selected</span>
+      <button class="pillbtn sm" onclick="bulkMark()">Mark contacted</button>
+      <button class="pillbtn sm" onclick="bulkCsv()">Export CSV</button>
+    </div>
+    <span class="cf live" style="margin-left:auto">LIVE</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th style="width:34px"><input type="checkbox" onclick="selAll(this)"></th><th>When</th><th>Who</th><th>Company</th><th>Status</th><th>Move to</th><th>Notes</th></tr></thead>
+    <tbody id="tblReq"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-em" style="display:none">
+  <div class="toolbar">
+    <div class="chips" id="emSt">
+      <button class="chip on" data-v="all" onclick="emF('all',this)">All</button>
+      <button class="chip" data-v="new" onclick="emF('new',this)">New</button>
+      <button class="chip" data-v="contacted" onclick="emF('contacted',this)">Contacted</button>
+      <button class="chip" data-v="invited" onclick="emF('invited',this)">Invited</button>
+    </div>
+    <div class="copybar" style="margin:0 0 0 auto">
+      <span class="mini" id="emCount"></span>
+      <button class="pillbtn" id="copyBtn" onclick="copyEmails()">Copy all emails</button>
+      <button class="pillbtn" onclick="csvEmails()">Download CSV</button>
+    </div>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>Email</th><th>Name</th><th>Company</th><th>Status</th></tr></thead>
+    <tbody id="tblEm"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-tk" style="display:none">
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/></svg><input type="text" id="tkSearch" placeholder="Search tickets" oninput="render()"></div>
+    <div class="chips" id="tkCh">
+      <button class="chip on" data-k="all" data-label="All" onclick="tset('all')">All</button>
+      <button class="chip" data-k="bug" data-label="Bugs" onclick="tset('bug')">Bugs</button>
+      <button class="chip" data-k="idea" data-label="Ideas" onclick="tset('idea')">Ideas</button>
+      <button class="chip" data-k="question" data-label="Questions" onclick="tset('question')">Questions</button>
+      <button class="chip" data-k="support" data-label="Support" onclick="tset('support')">Support</button>
+      <button class="chip" data-k="hi" data-label="High priority" onclick="tset('hi')">High priority</button><button class="chip" data-k="openonly" data-label="Open only" onclick="tset('openonly')">Open only</button>
+    </div>
+    <button class="pillbtn primary" style="margin-left:auto" onclick="tkOpen()">+ Add ticket</button><span class="cf live">LIVE</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>When</th><th>Priority</th><th>Type</th><th>Message</th><th>From</th><th>Assignee</th><th>Status</th><th></th></tr></thead>
+    <tbody id="tblTk"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-cx" style="display:none">
+  <div class="toolbar"><div class="hint" style="margin:0">Platform wide connector health across all workspaces. Becomes live in the connector stage.</div><span class="cf sample" style="margin-left:auto">SAMPLE</span></div>
+  <div class="provgrid" id="provGrid"></div>
+  <div class="sect"><span class="eyebrow">Failing syncs</span><span class="line"></span><span class="mini" id="cxCount"></span></div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>Company</th><th>Connector</th><th>Error</th><th>Since</th><th>Status</th><th></th></tr></thead>
+    <tbody id="tblCx"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-us" style="display:none">
+  <div class="hint">People who can open this console. Each gets a personal access key shown once. Only the owner can add or remove users.</div>
+  <div class="card">
+    <div class="addform" id="addUserForm">
+      <input type="text" id="nuName" placeholder="Name">
+      <input type="text" id="nuEmail" placeholder="Email">
+      <select id="nuRole"><option value="viewer">viewer</option><option value="admin">admin</option></select>
+      <button class="pillbtn primary" onclick="addUser()">Add user</button>
+    </div>
+    <div class="keyreveal" id="keyReveal"></div>
+    <div style="overflow-x:auto">
+    <table><thead><tr><th>Added</th><th>Name</th><th>Email</th><th>Role</th><th>Last seen</th><th></th></tr></thead>
+    <tbody id="tblUs"></tbody></table>
+    </div>
+  </div>
+</div>
+<div class="view" id="v-au" style="display:none">
+  <div class="toolbar">
+    <div class="hint" style="margin:0">Every admin action taken in this console. Session actions append live.</div>
+    <span class="cf sample" style="margin-left:auto">SAMPLE + SESSION</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th></tr></thead>
+    <tbody id="tblAu"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-se" style="display:none">
+  <div class="sect"><span class="eyebrow">Pilot workspaces</span><span class="line"></span><span class="cf live">LIVE</span></div>
+  <div class="hint">The concierge pipeline. Create a workspace for a pilot company, send them the access code, then upload their usage CSV. They sign in at depthdata.app with the code and see their own numbers.</div>
+  <div class="card">
+    <div class="addform" id="wsForm">
+      <input type="text" id="wsName" placeholder="Company name">
+      <input type="text" id="wsDomain" placeholder="Domain (optional)">
+      <button class="pillbtn primary" onclick="addWs()">Create workspace</button>
+    </div>
+    <div class="keyreveal" id="wsReveal"></div>
+    <div style="overflow-x:auto">
+    <table><thead><tr><th>Created</th><th>Workspace</th><th>Domain</th><th>Status</th></tr></thead>
+    <tbody id="tblWs"><tr><td colspan="4" class="empty">No pilot workspaces yet. Create the first one above.</td></tr></tbody></table>
+    </div>
+    <div class="addform" style="border-top:1px solid var(--border);border-bottom:none">
+      <select id="ingWs" style="min-width:200px"></select>
+      <input type="file" id="ingFile" accept=".csv" style="color:var(--ink-3);font-size:12px">
+      <button class="pillbtn" onclick="ingestCsv()">Upload usage CSV</button>
+      <span class="mini" id="ingMsg"></span>
+    </div>
+    <div class="hint" style="padding:0 14px 14px;margin:0">CSV columns: day (YYYY-MM-DD), email, tool, prompts required. name, department, tokens, cost optional. Column order does not matter, headers do.</div>
+  </div>
+  <div class="sect" style="margin-top:0"><span class="eyebrow">Notification channels</span><span class="line"></span></div>
+  <div class="card" style="padding:6px 16px">
+    <div class="kv"><span class="k">Email alerts</span><span><b>RESEND_API_KEY + NOTIFY_EMAIL</b> <span class="mini">set in Vercel env</span></span></div>
+    <div class="kv"><span class="k">Slack alerts</span><span><b>SLACK_WEBHOOK_URL</b> <span class="mini">optional, add when ready</span></span></div>
+    <div class="kv"><span class="k">Storage</span><span><b>SUPABASE_URL + SUPABASE_SERVICE_KEY</b> <span class="mini">rows for requests, tickets, users</span></span></div>
+  </div>
+  <div class="sect"><span class="eyebrow">Platform flags</span><span class="line"></span><span class="cf sample">SAMPLE</span></div>
+  <div class="card" style="padding:6px 16px" id="flagList"></div>
+  <div class="sect"><span class="eyebrow">Data</span><span class="line"></span></div>
+  <div class="card" style="padding:16px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="pillbtn" onclick="csvEmails()">Export leads CSV</button>
+    <button class="pillbtn" onclick="exportTickets()">Export tickets CSV</button>
+  </div>
+  <div class="sect"><span class="eyebrow">Danger zone</span><span class="line"></span></div>
+  <div class="card" style="padding:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:240px"><b style="font-size:13px">Rotate owner key</b><div class="hint" style="margin:2px 0 0">Change ADMIN_PASSWORD in Vercel, then redeploy. Console users keep their own keys.</div></div>
+    <button class="pillbtn danger" onclick="toast('Rotate the key in Vercel settings, then redeploy')">How to rotate</button>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" onclick="drClose()"></div>
+<aside class="drawer" id="drawer">
+  <div class="dr-head">
+    <div class="dr-top">
+      <div class="dr-logo" id="drLogo">B</div>
+      <div><div class="dr-name" id="drName"></div><div class="dr-dom" id="drDom"></div><div id="drTags" style="margin-top:6px;display:flex;gap:6px"></div></div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center" id="drActs"></div>
+      <button class="dr-x" onclick="drClose()">&#10005;</button>
+    </div>
+    <div class="dr-tabs" id="drTabsRow">
+      <button class="on" data-t="ov" onclick="drTab('ov')">Overview</button>
+      <button data-t="bill" onclick="drTab('bill')">Billing</button>
+      <button data-t="users" onclick="drTab('users')">Users</button>
+      <button data-t="cx" onclick="drTab('cx')">Integrations</button>
+      <button data-t="act" onclick="drTab('act')">Activity</button>
+    </div>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+<div class="modal-scrim" id="modal">
+  <div class="modal">
+    <h3 id="mTitle"></h3>
+    <p id="mBody"></p>
+    <div class="btns"><button class="pillbtn" onclick="mClose(false)">Cancel</button><button class="pillbtn primary" id="mGo" onclick="mClose(true)">Confirm</button></div>
+  </div>
+</div>
+
+
+
+<div class="modal-scrim" id="tmodal">
+  <div class="modal" style="width:min(520px,94vw)">
+    <h3>Add ticket</h3>
+    <p style="margin-bottom:14px">Log something that arrived by phone, email or in person. It lands in the same inbox as in-app reports.</p>
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:16px">
+      <input type="text" id="ntTitle" placeholder="Short title, e.g. SSO question from Quanta call">
+      <textarea id="ntMsg" placeholder="Details: what happened or what was asked" style="min-height:84px"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label class="mini" style="display:flex;flex-direction:column;gap:5px">TYPE
+          <select id="ntType"><option value="bug">bug</option><option value="idea">idea</option><option value="question">question</option></select></label>
+        <label class="mini" style="display:flex;flex-direction:column;gap:5px">CHANNEL
+          <select id="ntChan"><option value="call">call</option><option value="email">email</option><option value="in person">in person</option><option value="other">other</option></select></label>
+      </div>
+      <label class="mini" style="display:flex;flex-direction:column;gap:6px">PRIORITY
+        <div class="chips" id="ntPri">
+          <button class="chip" data-v="p1" onclick="ntP('p1',this)">P1 Critical</button>
+          <button class="chip" data-v="p2" onclick="ntP('p2',this)">P2 High</button>
+          <button class="chip on" data-v="p3" onclick="ntP('p3',this)">P3 Normal</button>
+          <button class="chip" data-v="p4" onclick="ntP('p4',this)">P4 Low</button>
+        </div></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label class="mini" style="display:flex;flex-direction:column;gap:5px">ASSIGN TO
+          <select id="ntAssn"></select></label>
+        <label class="mini" style="display:flex;flex-direction:column;gap:5px">COMPANY
+          <select id="ntCo"></select></label>
+      </div>
+      <input type="text" id="ntMail" placeholder="Reporter email (optional)">
+    </div>
+    <div class="btns"><button class="pillbtn" onclick="tkClose()">Cancel</button><button class="pillbtn primary" onclick="tkSave()">Add ticket</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>var ICONS={"card": "<svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"5.5\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>", "clockic": "<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M12 7v5l3 2\"/></svg>", "plug": "<svg viewBox=\"0 0 24 24\"><path d=\"M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V7ZM12 16v5\"/></svg>", "lead": "<svg viewBox=\"0 0 24 24\"><circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3.5 19a5.5 5.5 0 0 1 11 0M17 8v6M20 11h-6\"/></svg>", "tick": "<svg viewBox=\"0 0 24 24\"><path d=\"M20.6 13.1 13 20.7a1.9 1.9 0 0 1-2.7 0L3.4 13.8a1.9 1.9 0 0 1 0-2.7l7.6-7.6a1.9 1.9 0 0 1 1.4-.6h5.7a2 2 0 0 1 2 2v5.7c0 .5-.2 1-.6 1.4Z\"/><circle cx=\"15.5\" cy=\"8.5\" r=\"1.2\"/></svg>", "warn": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 4 2.8 19.4A1 1 0 0 0 3.7 21h16.6a1 1 0 0 0 .9-1.6L12 4ZM12 10v4M12 17.5h.01\"/></svg>"};
+function sGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+function sSet(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+function sDel(k){try{sessionStorage.removeItem(k)}catch(e){}}
+var KEY=sGet('dd_admin_key')||'';
+var DATA={requests:[],reports:[],support:[],users:[],actor:null};
+var TFILTER='all', RQF='all', EMFV='all', COF={plan:'all',st:'all'}, SEL={}, CUR=null, CURTAB='ov';
+function $(s){return document.querySelector(s)}
+function $$(s){return [...document.querySelectorAll(s)]}
+function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmtDate(iso){if(!iso)return 'never';var d=new Date(iso);return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function money(n){return '$'+Number(n).toLocaleString('en-US')}
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on')},2400)}
+function audit(action,target){AUDIT.unshift({when:new Date().toISOString(),actor:(DATA.actor&&DATA.actor.type==='owner')?'Owner':((DATA.actor&&DATA.actor.name)||'You'),action:action,target:target,session:true});renderAudit()}
+/* ---------- confirm modal ---------- */
+var __confirmCb=null;
+function confirmAct(title,body,label,danger,cb){
+  $('#mTitle').textContent=title;$('#mBody').textContent=body;
+  var b=$('#mGo');b.textContent=label;b.className='pillbtn '+(danger?'danger':'primary');
+  __confirmCb=cb;$('#modal').classList.add('on');
+}
+function mClose(ok){$('#modal').classList.remove('on');if(ok&&__confirmCb)__confirmCb();__confirmCb=null;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){mClose(false);drClose();if(window.tkClose)tkClose();}});
+/* ---------- api ---------- */
+function api(method, action, body, qs){
+  return fetch('/api/admin?action='+action+(qs||''),{method:method,headers:{'Content-Type':'application/json','x-admin-key':KEY},body:body?JSON.stringify(body):undefined})
+    .then(function(r){ if(r.status===401) throw 'auth'; return r.json(); });
+}
+function gate(msg){$('#gate').style.display='';$('#shell').style.display='none';
+  if(msg){var e=$('#gateErr');e.textContent=msg;e.style.display='block';}}
+function enter(){var err=$('#gateErr'),ok=$('#gateOk');err.style.display='none';ok.style.display='none';KEY=$('#gateKey').value.trim();if(!KEY){err.textContent='Enter your access key, or request one below.';err.style.display='block';return;}sSet('dd_admin_key',KEY);boot();}
+function boot(){
+  $('#errbar').classList.remove('on');
+  api('GET','overview').then(function(d){
+    if(!d.ok){gate(d.error||'Could not load');return;}
+    DATA=d;
+    $('#gate').style.display='none';$('#shell').style.display='';
+    $('#pfName').textContent=d.actor?(d.actor.type==='owner'?'Owner':d.actor.name):'';
+    $('#pfRole').textContent=d.actor?(d.actor.type==='owner'?'FULL ACCESS':(d.actor.role||'viewer').toUpperCase()):'';
+    $('#pfAv').textContent=(($('#pfName').textContent||'O')[0]||'O').toUpperCase();
+    render();loadWs();
+  }).catch(function(e){
+    if(e==='auth'){gate('Wrong key. Try again.');return;}
+    $('#gate').style.display='none';$('#shell').style.display='';
+    $('#errbar').classList.add('on');
+    render();
+  });
+}
+function show(view){
+  $$('.nav a').forEach(function(a){a.classList.toggle('active',a.dataset.v===view)});
+  $$('.view').forEach(function(v){v.style.display=v.id==='v-'+view?'':'none'});
+  var T={pulse:['Pulse','Command center'],comp:['Companies','Accounts and health'],req:['Demo requests','Lead pipeline'],em:['Emails','Collected addresses'],tk:['Tickets','Bugs, feedback and support'],cx:['Connectors','Platform sync health'],us:['Console users','Access to this console'],au:['Audit log','Every admin action'],se:['Settings','Channels, flags and data']};
+  $('#pgTitle').textContent=T[view][0];$('#pgSub').textContent=T[view][1].toUpperCase();
+}
+function refresh(){boot();toast('Refreshed')}
+function signout(){sDel('dd_admin_key');KEY='';gate();}
+function ddClock(){var el=$('#ddClock');if(!el)return;var d=new Date();
+var days=['SUN','MON','TUE','WED','THU','FRI','SAT'],mos=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function p(n){return (n<10?'0':'')+n}
+el.textContent=days[d.getDay()]+' '+mos[d.getMonth()]+' '+p(d.getDate())+' \u00b7 '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());}
+setInterval(ddClock,1000);
+
+/* ---------- SAMPLE data: companies, connectors, audit (until later stages) ---------- */
+var COMPANIES=[
+ {id:1,name:'BrightOps',domain:'brightops.com',plan:'growth',status:'active',health:'good',seats:[64,80],mrr:175,created:'2026-06-02',renew:'2026-09-02',credit:0,pm:'Visa 4412',adoption:76,
+  users:[{n:'Maya Chen',e:'maya@brightops.com',r:'Owner',la:'2026-08-25',st:'active'},{n:'Leo Brandt',e:'leo@brightops.com',r:'Admin',la:'2026-08-24',st:'active'},{n:'Ines Vogel',e:'ines@brightops.com',r:'Viewer',la:'2026-08-11',st:'invited'}],
+  inv:[{id:'INV-1042',d:'2026-08-01',a:175,st:'paid'},{id:'INV-0991',d:'2026-07-01',a:175,st:'paid'},{id:'INV-0940',d:'2026-06-02',a:175,st:'paid'}],
+  cx:[{n:'ChatGPT',st:'ok',ls:'2026-08-25 05:10'},{n:'Claude',st:'ok',ls:'2026-08-25 05:10'},{n:'Copilot',st:'warn',ls:'2026-08-24 05:12',err:'Rate limited, retrying'},{n:'Cursor',st:'ok',ls:'2026-08-25 05:11'}],
+  act:[['2026-08-25','Weekly sync completed, 4 connectors'],['2026-08-22','Leo Brandt exported board PDF'],['2026-08-18','Plan renewed automatically']]},
+ {id:2,name:'Quanta Tech',domain:'quantatech.de',plan:'enterprise',status:'active',health:'watch',seats:[210,250],mrr:1450,created:'2026-04-14',renew:'2027-04-14',credit:250,pm:'SEPA debit',adoption:64,
+  users:[{n:'Sofia Marek',e:'sofia@quantatech.de',r:'Owner',la:'2026-08-24',st:'active'},{n:'Jonas Weber',e:'jonas@quantatech.de',r:'Admin',la:'2026-08-23',st:'active'}],
+  inv:[{id:'INV-1030',d:'2026-08-01',a:1450,st:'paid'},{id:'INV-0975',d:'2026-07-01',a:1450,st:'failed'},{id:'INV-0921',d:'2026-06-01',a:1450,st:'paid'}],
+  cx:[{n:'ChatGPT',st:'ok',ls:'2026-08-25 04:40'},{n:'Claude',st:'down',ls:'2026-08-21 04:44',err:'Admin key expired'},{n:'Gemini',st:'ok',ls:'2026-08-25 04:41'}],
+  act:[['2026-08-24','Sofia Marek invited 12 seats'],['2026-08-21','Claude connector lost auth'],['2026-07-01','Invoice INV-0975 failed, card declined']]},
+ {id:3,name:'Meshworks',domain:'meshworks.co',plan:'starter',status:'trial',health:'good',seats:[18,25],mrr:0,created:'2026-08-12',renew:'2026-09-12',credit:0,pm:'none yet',adoption:58,
+  users:[{n:'David Okoro',e:'d.okoro@meshworks.co',r:'Owner',la:'2026-08-25',st:'active'}],
+  inv:[],
+  cx:[{n:'ChatGPT',st:'ok',ls:'2026-08-25 05:02'},{n:'Copilot',st:'ok',ls:'2026-08-25 05:02'}],
+  act:[['2026-08-25','Trial day 13 of 30'],['2026-08-12','Workspace created']]},
+ {id:4,name:'NordicPay',domain:'nordicpay.se',plan:'growth',status:'suspended',health:'risk',seats:[42,60],mrr:175,created:'2026-05-20',renew:'2026-09-20',credit:0,pm:'Visa 9981',adoption:31,
+  users:[{n:'Anna Lindqvist',e:'anna@nordicpay.se',r:'Owner',la:'2026-08-02',st:'active'}],
+  inv:[{id:'INV-1011',d:'2026-08-01',a:175,st:'failed'},{id:'INV-0956',d:'2026-07-01',a:175,st:'failed'},{id:'INV-0902',d:'2026-06-01',a:175,st:'paid'}],
+  cx:[{n:'ChatGPT',st:'down',ls:'2026-08-02 05:00',err:'Suspended, sync paused'}],
+  act:[['2026-08-10','Suspended after two failed payments'],['2026-08-01','Invoice INV-1011 failed']]},
+ {id:5,name:'Helix Labs',domain:'helixlabs.ai',plan:'free',status:'churned',health:'risk',seats:[6,10],mrr:0,created:'2026-03-01',renew:'',credit:0,pm:'none',adoption:12,
+  users:[{n:'James Park',e:'jp@helixlabs.ai',r:'Owner',la:'2026-06-30',st:'active'}],
+  inv:[],cx:[],act:[['2026-06-30','Downgraded to free and went quiet']]}
+];
+var CXFAILS=[
+ {co:'Quanta Tech',cx:'Claude',err:'Admin key expired',since:'Aug 21',st:'down'},
+ {co:'NordicPay',cx:'ChatGPT',err:'Suspended, sync paused',since:'Aug 02',st:'down'},
+ {co:'BrightOps',cx:'Copilot',err:'Rate limited, retrying',since:'Aug 24',st:'warn'}
+];
+var PROVIDERS=[
+ {n:'ChatGPT',ok:96,syncs:41},{n:'Claude',ok:88,syncs:37},{n:'Copilot',ok:93,syncs:29},{n:'Gemini',ok:100,syncs:12},{n:'Cursor',ok:100,syncs:9}
+];
+var AUDIT=[
+ {when:'2026-08-24T10:12:00Z',actor:'Owner',action:'Resolved ticket',target:'Billing header bug'},
+ {when:'2026-08-22T09:03:00Z',actor:'Owner',action:'Marked contacted',target:'sofia@quantatech.de'},
+ {when:'2026-08-21T15:40:00Z',actor:'Deniz Kaya',action:'Viewed console',target:''},
+ {when:'2026-08-10T11:00:00Z',actor:'Owner',action:'Suspended company',target:'NordicPay'}
+];
+var FLAGS=[
+ {k:'signup_open',n:'Public signup open',on:true,d:'Request access form accepts submissions'},
+ {k:'maintenance',n:'Maintenance banner',on:false,d:'Shows a banner inside the product'},
+ {k:'weekly_digest',n:'Weekly digest email',on:true,d:'Send yourself a Monday summary'}
+];
+
+/* ---------- render everything ---------- */
+function counts(list,f){var o={};list.forEach(function(r){o[r[f]]=(o[r[f]]||0)+1});return o}
+function render(){
+  var rq=DATA.requests||[], rp=DATA.reports||[], sp=DATA.support||[];
+  var rc=counts(rq,'status');
+  var week=Date.now()-7*864e5;
+  var mrr=COMPANIES.filter(function(c){return c.status==='active'}).reduce(function(s,c){return s+c.mrr},0);
+  $('#kMrr').textContent=money(mrr);
+  $('#kComp').textContent=COMPANIES.filter(function(c){return c.status==='active'||c.status==='trial'}).length;
+  $('#kNew').textContent=rc['new']||0;
+  $('#kOpen').textContent=rp.filter(function(r){return r.status==='open'}).length+sp.filter(function(s){return +new Date(s.created_at)>week}).length;
+  $('#nComp').textContent=COMPANIES.length;
+  $('#nReq').textContent=rc['new']||'';
+  $('#nTk').textContent=rp.filter(function(r){return r.status==='open'}).length||'';
+  $('#nCx').textContent=CXFAILS.filter(function(f){return f.st==='down'}).length||'';
+  /* funnel */
+  var steps=[['Requested',rq.length],['Contacted',(rc['contacted']||0)+(rc['invited']||0)+(rc['closed']||0)],['Invited',(rc['invited']||0)+(rc['closed']||0)],['Closed',rc['closed']||0]];
+  var mx=Math.max(1,steps[0][1]);
+  $('#funnel').innerHTML=steps.map(function(s){return '<div class="fstep"><div class="fbar" style="height:'+Math.max(6,64*s[1]/mx)+'px"></div><div class="fnum tnum">'+s[1]+'</div><div class="flab">'+s[0]+'</div></div>'}).join('');
+  renderAttention();renderFeed();renderComp();renderReq();renderEm();renderTk();renderCx();renderUs();renderAudit();renderFlags();
+}
+function renderAttention(){
+  var items=[];
+  var rq=DATA.requests||[], rp=DATA.reports||[];
+  COMPANIES.forEach(function(c){
+    var failed=c.inv.filter(function(i){return i.st==='failed'}).length;
+    if(failed&&c.status!=='churned')items.push({sev:'r',ic:'card',t:c.name+' has '+failed+' failed payment'+(failed>1?'s':''),s:'Retry the charge or reach out before access lapses',act:'Open billing',fn:"openCo("+c.id+",'bill')"});
+    if(c.status==='trial'){var left=Math.max(0,Math.round((new Date(c.renew)-Date.now())/864e5));if(left<=14)items.push({sev:'g',ic:'clockic',t:c.name+' trial ends in '+left+' days',s:'Nudge them toward a plan while momentum is high',act:'Open company',fn:"openCo("+c.id+",'ov')"});}
+  });
+  CXFAILS.filter(function(f){return f.st==='down'}).forEach(function(f){items.push({sev:'r',ic:'plug',t:f.co+' \u00b7 '+f.cx+' connector is down',s:f.err+' since '+f.since,act:'View connectors',fn:"show('cx')"})});
+  var stale=rq.filter(function(r){return r.status==='new'&&(Date.now()-+new Date(r.created_at))>3*864e5});
+  if(stale.length)items.push({sev:'g',ic:'lead',t:stale.length+' lead'+(stale.length>1?'s':'')+' uncontacted for 3+ days',s:'Fresh leads convert best in the first days',act:'Open requests',fn:"show('req')"});
+  var crit=rp.filter(function(r){return r.status==='open'&&(r.priority==='p1'||r.priority==='p2')});
+  if(crit.length)items.push({sev:'r',ic:'tick',t:crit.length+' high priority ticket'+(crit.length>1?'s':'')+' open',s:'P1 and P2 tickets deserve a same day response',act:'View high priority',fn:"TFILTER='hi';show('tk');render()"});
+  var oldTk=rp.filter(function(r){return r.status==='open'&&(Date.now()-+new Date(r.created_at))>2*864e5});
+  if(oldTk.length)items.push({sev:'b',ic:'tick',t:oldTk.length+' ticket'+(oldTk.length>1?'s':'')+' open for 48+ hours',s:'A quick reply keeps early users on your side',act:'Open tickets',fn:"show('tk')"});
+  $('#attCount').textContent=items.length+' items';
+  $('#attList').innerHTML=items.length?items.map(function(i){
+    return '<div class="att sev-'+i.sev+'"><span class="ic">'+ICONS[i.ic]+'</span><div><div class="tt">'+esc(i.t)+'</div><div class="ss">'+esc(i.s)+'</div></div><span class="act"><button class="pillbtn sm" onclick="'+i.fn+'">'+i.act+'</button></span></div>';
+  }).join(''):'<div class="empty">Nothing needs attention right now. Quiet cockpit, good sign.</div>';
+}
+function renderFeed(){
+  var f=[];
+  (DATA.requests||[]).slice(0,4).forEach(function(r){f.push({w:r.created_at,t:esc(r.name)+' requested access ('+esc(r.company)+')'})});
+  (DATA.reports||[]).slice(0,3).forEach(function(r){f.push({w:r.created_at,t:'New '+esc(r.type)+' report on '+esc(r.page)})});
+  (DATA.support||[]).slice(0,3).forEach(function(s){f.push({w:s.created_at,t:'Help desk: '+esc(s.question).slice(0,60)})});
+  f.sort(function(a,b){return b.w<a.w?-1:1});
+  $('#feed').innerHTML=f.length?f.slice(0,9).map(function(x){return '<div class="fitem"><span class="ft">'+fmtDate(x.w)+'</span><span>'+x.t+'</span></div>'}).join(''):'<div class="empty">Activity appears as leads and tickets arrive.</div>';
+}
+/* ---------- companies ---------- */
+function coF(k,v,el){COF[k]=v;[...el.parentElement.children].forEach(function(c){c.classList.toggle('on',c===el)});renderComp();}
+function renderComp(){
+  var q=($('#coSearch').value||'').toLowerCase();
+  var list=COMPANIES.filter(function(c){
+    if(COF.plan!=='all'&&c.plan!==COF.plan)return false;
+    if(COF.st!=='all'&&c.status!==COF.st)return false;
+    if(q&&!(c.name.toLowerCase().includes(q)||c.domain.toLowerCase().includes(q)))return false;
+    return true;
+  });
+  $('#tblComp').innerHTML=list.length?list.map(function(c){
+    return '<tr class="rowlink" onclick="openCo('+c.id+',\'ov\')">'+
+     '<td><b style="color:var(--ink)">'+esc(c.name)+'</b><br><span class="mono" style="font-size:10.5px">'+esc(c.domain)+'</span></td>'+
+     '<td><span class="tag '+c.plan+'">'+c.plan.toUpperCase()+'</span></td>'+
+     '<td class="mono tnum">'+c.seats[0]+' / '+c.seats[1]+'</td>'+
+     '<td class="mono tnum">'+(c.mrr?money(c.mrr):'\u2014'.replace('\u2014','$0'))+'</td>'+
+     '<td><span class="hdot '+c.health+'"></span>'+c.health+'</td>'+
+     '<td><span class="tag '+c.status+'">'+c.status.toUpperCase()+'</span></td>'+
+     '<td class="mono" style="font-size:10.5px">'+esc((c.act[0]||['',''])[0])+'</td>'+
+     '<td style="text-align:right;color:var(--ink-3)">\u203a</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">No companies match. Clear a filter or search less specifically.</td></tr>';
+}
+
+/* ---------- company drawer ---------- */
+function openCo(id,tab){CUR=COMPANIES.find(function(c){return c.id===id});CURTAB=tab||'ov';
+  $('#scrim').classList.add('on');$('#drawer').classList.add('on');renderDrawer();}
+function drClose(){$('#scrim').classList.remove('on');$('#drawer').classList.remove('on');CUR=null;}
+function drTab(t){CURTAB=t;renderDrawer();}
+function renderDrawer(){
+  if(!CUR)return;
+  var c=CUR;
+  $('#drLogo').textContent=c.name[0];
+  $('#drName').textContent=c.name;
+  $('#drDom').textContent=c.domain+' \u00b7 created '+c.created;
+  $('#drTags').innerHTML='<span class="tag '+c.plan+'">'+c.plan.toUpperCase()+'</span> <span class="tag '+c.status+'">'+c.status.toUpperCase()+'</span> <span class="cf sample">SAMPLE</span>';
+  var susBtn = c.status==='suspended'
+    ? '<button class="pillbtn sm" onclick="reactivateCo()">Reactivate</button>'
+    : '<button class="pillbtn sm danger" onclick="suspendCo()">Suspend</button>';
+  $('#drActs').innerHTML='<button class="pillbtn sm" onclick="toast(\'Workspace opens in the product with an owner session\')">Open workspace</button>'+susBtn;
+  $$('#drTabsRow button').forEach(function(b){b.classList.toggle('on',b.dataset.t===CURTAB)});
+  var B=$('#drBody');
+  if(CURTAB==='ov'){
+    var failed=c.inv.filter(function(i){return i.st==='failed'}).length;
+    B.innerHTML=(failed?'<div class="banner red">'+ICONS.warn+' '+failed+' failed payment'+(failed>1?'s':'')+'. Retry from the billing tab.</div>':'')+
+    (c.status==='trial'?'<div class="banner gold">'+ICONS.clockic+' Trial ends '+c.renew+'.</div>':'')+
+    '<div class="grid4" style="grid-template-columns:repeat(4,1fr)">'+
+      '<div class="card kpi"><div class="eyebrow">Seats</div><div class="v tnum" style="font-size:20px">'+c.seats[0]+' / '+c.seats[1]+'</div></div>'+
+      '<div class="card kpi"><div class="eyebrow">MRR</div><div class="v tnum" style="font-size:20px">'+money(c.mrr)+'</div></div>'+
+      '<div class="card kpi"><div class="eyebrow">Adoption</div><div class="v tnum" style="font-size:20px">'+c.adoption+'</div><div class="s">workspace score</div></div>'+
+      '<div class="card kpi"><div class="eyebrow">Health</div><div class="v" style="font-size:20px"><span class="hdot '+c.health+'"></span>'+c.health+'</div></div>'+
+    '</div>'+
+    '<div class="sect"><span class="eyebrow">Account</span><span class="line"></span></div>'+
+    '<div class="card" style="padding:6px 16px">'+
+      '<div class="kv"><span class="k">Renewal</span><b>'+(c.renew||'no renewal')+'</b></div>'+
+      '<div class="kv"><span class="k">Payment method</span><b>'+esc(c.pm)+'</b></div>'+
+      '<div class="kv"><span class="k">Credit balance</span><b>'+money(c.credit)+'</b></div>'+
+    '</div>'+
+    '<div class="sect"><span class="eyebrow">Notes</span><span class="line"></span></div>'+
+    '<textarea id="coNote" style="width:100%;min-height:74px" placeholder="Internal notes about this account">'+esc(c.note||'')+'</textarea>'+
+    '<div style="margin-top:8px"><button class="pillbtn sm" onclick="CUR.note=$(\'#coNote\').value;audit(\'Saved note\',CUR.name);toast(\'Note saved\')">Save note</button></div>';
+  }
+  if(CURTAB==='bill'){
+    var rows=c.inv.map(function(i){
+      var act = i.st==='failed' ? '<button class="pillbtn sm" onclick="retryInv(\''+i.id+'\')">Retry charge</button>'
+        : (i.st==='paid' ? '<button class="pillbtn sm" onclick="refundInv(\''+i.id+'\')">Refund</button>' : '');
+      return '<tr><td class="mono">'+i.id+'</td><td class="mono" style="font-size:11px">'+i.d+'</td><td class="mono tnum">'+money(i.a)+'</td><td><span class="tag '+i.st+'">'+i.st.toUpperCase()+'</span></td><td>'+act+'</td></tr>';
+    }).join('');
+    B.innerHTML='<div class="grid2">'+
+      '<div class="card" style="padding:16px"><div class="eyebrow">Current plan</div>'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-top:10px"><span class="tag '+c.plan+'">'+c.plan.toUpperCase()+'</span><span class="mono tnum">'+money(c.mrr)+' / mo</span></div>'+
+      '<div style="display:flex;gap:8px;margin-top:14px"><select id="planSel"><option'+(c.plan==='free'?' selected':'')+'>free</option><option'+(c.plan==='starter'?' selected':'')+'>starter</option><option'+(c.plan==='growth'?' selected':'')+'>growth</option><option'+(c.plan==='enterprise'?' selected':'')+'>enterprise</option></select>'+
+      '<button class="pillbtn sm" onclick="changePlan()">Change plan</button></div></div>'+
+      '<div class="card" style="padding:16px"><div class="eyebrow">Credit</div><div class="v tnum" style="font-size:20px;margin-top:8px">'+money(c.credit)+'</div>'+
+      '<div style="display:flex;gap:8px;margin-top:12px"><input type="number" id="credAmt" placeholder="Amount" style="width:110px"><button class="pillbtn sm" onclick="addCredit()">Add credit</button></div></div>'+
+      '</div>'+
+      '<div class="sect"><span class="eyebrow">Invoices</span><span class="line"></span></div>'+
+      '<div class="card" style="overflow-x:auto"><table><thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="5" class="empty">No invoices yet. Trials invoice at conversion.</td></tr>')+'</tbody></table></div>';
+  }
+  if(CURTAB==='users'){
+    B.innerHTML='<div class="card" style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Role</th><th>Last active</th><th>Status</th><th></th></tr></thead><tbody>'+
+    c.users.map(function(u,ix){
+      var acts='<button class="pillbtn sm" onclick="toast(\'Invite email resent to '+esc(u.e)+'\')">Resend invite</button> '+
+               '<button class="pillbtn sm danger" onclick="deactUser('+ix+')">Deactivate</button>';
+      return '<tr><td><b style="color:var(--ink)">'+esc(u.n)+'</b><br><span class="mono" style="font-size:10.5px">'+esc(u.e)+'</span></td>'+
+        '<td><span class="tag '+(u.r==='Owner'?'owner':(u.r==='Admin'?'admin':'viewer'))+'">'+u.r.toUpperCase()+'</span></td>'+
+        '<td class="mono" style="font-size:11px">'+u.la+'</td><td><span class="tag '+(u.st==='active'?'active':'contacted')+'">'+u.st.toUpperCase()+'</span></td>'+
+        '<td style="white-space:nowrap">'+acts+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+  if(CURTAB==='cx'){
+    B.innerHTML='<div class="card" style="overflow-x:auto"><table><thead><tr><th>Connector</th><th>Status</th><th>Last sync</th><th>Detail</th><th></th></tr></thead><tbody>'+
+    (c.cx.length?c.cx.map(function(x,ix){
+      var act=x.st!=='ok'?'<button class="pillbtn sm" onclick="fixCx('+ix+')">'+(x.st==='down'?'Reauth':'Retry sync')+'</button>':'';
+      return '<tr><td><b style="color:var(--ink)">'+esc(x.n)+'</b></td><td><span class="tag '+x.st+'">'+x.st.toUpperCase()+'</span></td>'+
+        '<td class="mono" style="font-size:11px">'+esc(x.ls)+'</td><td style="font-size:11.5px;color:var(--ink-3)">'+esc(x.err||'Healthy')+'</td><td>'+act+'</td></tr>';
+    }).join(''):'<tr><td colspan="5" class="empty">No connectors yet. They appear when the workspace links its first tool.</td></tr>')+'</tbody></table></div>';
+  }
+  if(CURTAB==='act'){
+    B.innerHTML='<div class="card feed">'+
+    c.act.map(function(a){return '<div class="fitem"><span class="ft">'+esc(a[0])+'</span><span>'+esc(a[1])+'</span></div>'}).join('')+'</div>';
+  }
+}
+function suspendCo(){var c=CUR;confirmAct('Suspend '+c.name+'?','Members lose access and connector syncs pause until you reactivate. Billing stops accruing.','Suspend company',true,function(){c.status='suspended';c.health='risk';audit('Suspended company',c.name);toast(c.name+' suspended');renderDrawer();renderComp();render();});}
+function reactivateCo(){var c=CUR;confirmAct('Reactivate '+c.name+'?','Access returns immediately and syncs resume on the next cycle.','Reactivate',false,function(){c.status='active';c.health='watch';audit('Reactivated company',c.name);toast(c.name+' reactivated');renderDrawer();renderComp();render();});}
+function changePlan(){var c=CUR;var v=$('#planSel').value;if(v===c.plan){toast('Already on '+v);return;}
+  confirmAct('Change plan to '+v+'?','Proration applies from today. The next invoice reflects the new plan.','Change plan',false,function(){c.plan=v;c.mrr=v==='free'?0:(v==='starter'?45:(v==='growth'?175:1450));audit('Changed plan to '+v,c.name);toast(c.name+' moved to '+v);renderDrawer();renderComp();render();});}
+function addCredit(){var c=CUR;var a=parseFloat($('#credAmt').value);if(!(a>0)){toast('Enter an amount');return;}
+  confirmAct('Add '+money(a)+' credit?','Credit applies to the next invoice automatically.','Add credit',false,function(){c.credit+=a;audit('Added '+money(a)+' credit',c.name);toast(money(a)+' credit added');renderDrawer();});}
+function retryInv(id){var c=CUR;confirmAct('Retry charge for '+id+'?','The saved payment method is charged again now.','Retry charge',false,function(){var i=c.inv.find(function(x){return x.id===id});i.st='paid';audit('Retried invoice '+id,c.name);toast(id+' paid');renderDrawer();renderAttention();});}
+function refundInv(id){var c=CUR;confirmAct('Refund '+id+'?','The full amount returns to the customer in 5 to 10 business days. This cannot be undone.','Refund invoice',true,function(){var i=c.inv.find(function(x){return x.id===id});i.st='refunded';audit('Refunded invoice '+id,c.name);toast(id+' refunded');renderDrawer();});}
+function deactUser(ix){var c=CUR;var u=c.users[ix];confirmAct('Deactivate '+u.n+'?','They lose access to the workspace. Their data and history remain.','Deactivate',true,function(){u.st='deactivated';audit('Deactivated user '+u.e,c.name);toast(u.n+' deactivated');renderDrawer();});}
+function fixCx(ix){var c=CUR;var x=c.cx[ix];x.st='ok';x.err='';x.ls='just now';audit('Fixed connector '+x.n,c.name);toast(x.n+' sync restored');renderDrawer();renderCx();render();}
+
+/* ---------- demo requests ---------- */
+function rqF(v,el){RQF=v;[...el.parentElement.children].forEach(function(c){c.classList.toggle('on',c===el)});renderReq();}
+function selAll(cb){var boxes=$$('#tblReq input[type=checkbox]');boxes.forEach(function(b){b.checked=cb.checked;SEL[b.dataset.id]=cb.checked});updBulk();}
+function selOne(cb){SEL[cb.dataset.id]=cb.checked;updBulk();}
+function updBulk(){var n=Object.keys(SEL).filter(function(k){return SEL[k]}).length;$('#bulkN').textContent=n+' selected';$('#bulkBar').classList.toggle('on',n>0);}
+function bulkMark(){var ids=Object.keys(SEL).filter(function(k){return SEL[k]});
+  ids.forEach(function(id){var r=DATA.requests.find(function(x){return x.id===+id});if(r&&r.status==='new'){r.status='contacted';api('PATCH','update',{table:'access_requests',id:+id,status:'contacted'});}});
+  audit('Bulk marked contacted',ids.length+' leads');toast(ids.length+' marked contacted');SEL={};updBulk();render();}
+function bulkCsv(){var ids=Object.keys(SEL).filter(function(k){return SEL[k]});
+  var rows=[['email','name','company','status']];
+  DATA.requests.filter(function(r){return ids.indexOf(String(r.id))>=0}).forEach(function(r){rows.push([r.email,r.name,r.company,r.status])});
+  dlCsv(rows,'depthdata-selected-leads.csv');}
+function renderReq(){
+  var q=($('#rqSearch').value||'').toLowerCase();
+  var qs=['new','contacted','invited','closed'];
+  var list=(DATA.requests||[]).filter(function(r){
+    if(RQF!=='all'&&r.status!==RQF)return false;
+    if(q&&!((r.name||'').toLowerCase().includes(q)||(r.email||'').toLowerCase().includes(q)||(r.company||'').toLowerCase().includes(q)))return false;
+    return true;
+  });
+  $('#tblReq').innerHTML=list.length?list.map(function(r){
+    return '<tr>'+
+     '<td><input type="checkbox" data-id="'+r.id+'" onclick="selOne(this)" '+(SEL[r.id]?'checked':'')+'></td>'+
+     '<td class="mono" style="white-space:nowrap">'+fmtDate(r.created_at)+'</td>'+
+     '<td><b style="color:var(--ink)">'+esc(r.name)+'</b><br><span class="mono" style="font-size:11px">'+esc(r.email)+'</span></td>'+
+     '<td>'+esc(r.company)+'</td>'+
+     '<td><span class="tag '+esc(r.status)+'">'+esc(r.status).toUpperCase()+'</span></td>'+
+     '<td><select onchange="setStatus(\'access_requests\','+r.id+',this.value)">'+qs.map(function(s){return '<option '+(s===r.status?'selected':'')+'>'+s+'</option>'}).join('')+'</select></td>'+
+     '<td style="min-width:170px"><input type="text" class="note-in" value="'+esc(r.notes)+'" placeholder="Notes" onchange="setNotes('+r.id+',this.value,this)"> <span class="saved">saved</span></td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="7" class="empty">No demo requests in this view. They arrive the moment someone signs up on depthdata.app.</td></tr>';
+}
+function setStatus(table,id,status){
+  api('PATCH','update',{table:table,id:id,status:status}).then(function(d){
+    var list=table==='reports'?DATA.reports:DATA.requests;
+    var row=list.find(function(x){return x.id===id});if(row)row.status=(d.row&&d.row.status)||status;
+    audit(table==='reports'?'Set ticket '+status:'Moved lead to '+status, row?(row.email||row.message||''):'');
+    render();
+  }).catch(function(){toast('Could not save, check the API')});
+}
+function setNotes(id,notes,el){
+  api('PATCH','update',{table:'access_requests',id:id,notes:notes}).then(function(){
+    var row=DATA.requests.find(function(x){return x.id===id});if(row)row.notes=notes;
+    var s=el.nextElementSibling;s.classList.add('on');setTimeout(function(){s.classList.remove('on')},1400);
+  }).catch(function(){toast('Could not save, check the API')});
+}
+/* ---------- emails ---------- */
+function emF(v,el){EMFV=v;[...el.parentElement.children].forEach(function(c){c.classList.toggle('on',c===el)});renderEm();}
+function emList(){var seen={},out=[];(DATA.requests||[]).forEach(function(r){if(EMFV!=='all'&&r.status!==EMFV)return;if(!seen[r.email]){seen[r.email]=1;out.push(r)}});return out}
+function renderEm(){
+  var ems=emList();
+  $('#emCount').textContent=ems.length+' unique';
+  $('#tblEm').innerHTML=ems.length?ems.map(function(r){
+    return '<tr><td class="mono">'+esc(r.email)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.company)+'</td><td><span class="tag '+esc(r.status)+'">'+esc(r.status).toUpperCase()+'</span></td></tr>';
+  }).join(''):'<tr><td colspan="4" class="empty">Emails collect here automatically from demo requests.</td></tr>';
+}
+function copyEmails(){var list=emList().map(function(r){return r.email});
+  try{navigator.clipboard.writeText(list.join(', '))}catch(e){}
+  var b=$('#copyBtn');b.textContent='Copied '+list.length;setTimeout(function(){b.textContent='Copy all emails'},1600);}
+function dlCsv(rows,name){var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=name;a.click();}
+function csvEmails(){var rows=[['email','name','company','status','date']];emList().forEach(function(r){rows.push([r.email,r.name,r.company,r.status,r.created_at])});dlCsv(rows,'depthdata-leads.csv');}
+function exportTickets(){var rows=[['when','type','message','email','page','status']];(DATA.reports||[]).forEach(function(r){rows.push([r.created_at,r.type,r.message,r.email,r.page,r.status])});dlCsv(rows,'depthdata-tickets.csv');}
+/* ---------- tickets ---------- */
+function tset(k){TFILTER=k;render();}
+var NTPRI='p3';
+function ntP(v,el){NTPRI=v;[...el.parentElement.children].forEach(function(c){c.classList.toggle('on',c===el)});}
+function assigneeOpts(sel){
+  var names=['Unassigned','Owner'];
+  (DATA.users||[]).forEach(function(u){if(names.indexOf(u.name)<0)names.push(u.name)});
+  return names.map(function(n){return '<option'+(n===sel?' selected':'')+' value="'+(n==='Unassigned'?'':esc(n))+'">'+esc(n)+'</option>'}).join('');
+}
+function tkOpen(){
+  NTPRI='p3';
+  $$('#ntPri .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v==='p3')});
+  $('#ntTitle').value='';$('#ntMsg').value='';$('#ntMail').value='';$('#ntType').value='bug';$('#ntChan').value='call';
+  $('#ntAssn').innerHTML=assigneeOpts('Owner');
+  $('#ntCo').innerHTML='<option value="">No company</option>'+COMPANIES.map(function(c){return '<option>'+esc(c.name)+'</option>'}).join('');
+  $('#tmodal').classList.add('on');setTimeout(function(){$('#ntTitle').focus()},50);
+}
+function tkClose(){$('#tmodal').classList.remove('on');}
+function tkSave(){
+  var msg=$('#ntMsg').value.trim(), title=$('#ntTitle').value.trim();
+  if(!title&&msg.length<3){toast('Give it a title or a short description');return;}
+  if(msg.length<3)msg=title;
+  var body={type:$('#ntType').value,title:title,message:msg,email:$('#ntMail').value.trim(),
+    priority:NTPRI,assignee:$('#ntAssn').value,channel:$('#ntChan').value,company:$('#ntCo').value};
+  api('POST','addticket',body).then(function(d){
+    if(!d.ok){toast(d.error||'Could not add');return;}
+    DATA.reports.unshift(d.row||Object.assign({id:Date.now(),created_at:new Date().toISOString(),page:'console',app:'manual',status:'open'},body));
+    audit('Added '+NTPRI.toUpperCase()+' ticket',(title||msg).slice(0,50));toast('Ticket added');tkClose();show('tk');render();
+  }).catch(function(){toast('Could not reach the API')});
+}
+function setTkField(id,field,val){
+  var body={table:'reports',id:id};body[field]=val;
+  api('PATCH','update',body).then(function(){
+    var row=DATA.reports.find(function(x){return x.id===id});if(row)row[field]=val;
+    audit(field==='priority'?'Set priority '+val.toUpperCase():'Assigned to '+(val||'nobody'), row?(row.title||row.message||'').slice(0,40):'');
+    render();
+  }).catch(function(){toast('Could not save, check the API')});
+}
+function tickets(){
+  var q=($('#tkSearch')?$('#tkSearch').value:'').toLowerCase();
+  var t=(DATA.reports||[]).map(function(r){return {kind:(r.type||'bug').toLowerCase(),when:r.created_at,title:r.title||'',msg:r.message,from:r.email||'anonymous',where:(r.app||'')+' \u00b7 '+(r.page||''),chan:r.channel||'',co:r.company||'',pri:r.priority||'p3',assn:r.assignee||'',status:r.status,id:r.id,table:'reports'}});
+  (DATA.support||[]).forEach(function(s){t.push({kind:'support',when:s.created_at,title:'',msg:s.question,from:'help desk visitor',where:s.page||'help desk',chan:'',co:'',pri:'',assn:'',status:'',id:s.id,table:null})});
+  var po={p1:0,p2:1,p3:2,p4:3,'':4};
+  t.sort(function(a,b){var d=(po[a.pri]||0)-(po[b.pri]||0);if(TFILTER==='hi')return d||((b.when<a.when)?-1:1);return b.when<a.when?-1:1});
+  if(TFILTER==='openonly')t=t.filter(function(x){return x.status==='open'});
+  else if(TFILTER==='hi')t=t.filter(function(x){return (x.pri==='p1'||x.pri==='p2')&&x.status==='open'});
+  else if(TFILTER!=='all')t=t.filter(function(x){return x.kind===TFILTER});
+  if(q)t=t.filter(function(x){return (x.msg||'').toLowerCase().includes(q)||(x.title||'').toLowerCase().includes(q)||(x.from||'').toLowerCase().includes(q)||(x.assn||'').toLowerCase().includes(q)});
+  return t;
+}
+function renderTk(){
+  var all=(DATA.reports||[]).length+(DATA.support||[]).length;
+  var counts={all:all,bug:0,idea:0,question:0,support:(DATA.support||[]).length,
+    openonly:(DATA.reports||[]).filter(function(r){return r.status==='open'}).length,
+    hi:(DATA.reports||[]).filter(function(r){return r.status==='open'&&(r.priority==='p1'||r.priority==='p2')}).length};
+  (DATA.reports||[]).forEach(function(r){var k=(r.type||'').toLowerCase();if(counts[k]!=null)counts[k]++});
+  $$('#tkCh .chip').forEach(function(ch){var k=ch.dataset.k;ch.innerHTML=ch.dataset.label+' <span class="mono" style="font-size:9px;opacity:.7">'+(counts[k]||0)+'</span>';ch.classList.toggle('on',TFILTER===k)});
+  var tk=tickets();
+  $('#tblTk').innerHTML=tk.length?tk.map(function(t){
+    var reply=t.from&&t.from.indexOf('@')>0?'<a class="pillbtn sm" href="mailto:'+esc(t.from)+'?subject=Re: your DepthData report">Reply</a> ':'';
+    var act=t.table?reply+'<button class="pillbtn sm" onclick="toggleRep('+t.id+',\''+(t.status==='open'?'resolved':'open')+'\')">'+(t.status==='open'?'Resolve':'Reopen')+'</button>':'<span class="mini">LOGGED</span>';
+    var st=t.table?'<span class="tag '+esc(t.status)+'">'+esc(t.status).toUpperCase()+'</span>':'';
+    var pri=t.table?'<select class="prisel '+t.pri+'" onchange="setTkField('+t.id+',\'priority\',this.value)">'+['p1','p2','p3','p4'].map(function(p){return '<option value="'+p+'"'+(p===t.pri?' selected':'')+'>'+p.toUpperCase()+'</option>'}).join('')+'</select>':'';
+    var assn=t.table?'<select onchange="setTkField('+t.id+',\'assignee\',this.value)" style="max-width:110px">'+assigneeOpts(t.assn||'Unassigned')+'</select>':'';
+    var msgCell=(t.title?'<b style="color:var(--ink)">'+esc(t.title)+'</b><br>':'')+'<span style="font-size:12px">'+esc(t.msg)+'</span>'+(t.co?'<br><span class="mini">'+esc(t.co)+(t.chan?' \u00b7 '+esc(t.chan):'')+'</span>':(t.chan?'<br><span class="mini">'+esc(t.chan)+'</span>':''));
+    return '<tr><td class="mono" style="white-space:nowrap">'+fmtDate(t.when)+'</td>'+
+      '<td>'+pri+'</td>'+
+      '<td><span class="tag '+esc(t.kind)+'">'+esc(t.kind).toUpperCase()+'</span></td>'+
+      '<td style="max-width:380px">'+msgCell+'</td>'+
+      '<td class="mono" style="font-size:11px">'+esc(t.from)+'</td>'+
+      '<td>'+assn+'</td>'+
+      '<td>'+st+'</td><td style="white-space:nowrap">'+act+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">No tickets in this view.</td></tr>';
+}
+function toggleRep(id,status){setStatus('reports',id,status)}
+/* ---------- connectors ---------- */
+function renderCx(){
+  $('#provGrid').innerHTML=PROVIDERS.map(function(p){
+    var cls=p.ok>=95?'ok':(p.ok>=90?'watch':'down');
+    return '<div class="card prov"><div class="pn"><span class="hdot '+(cls==='ok'?'good':(cls==='watch'?'watch':'risk'))+'"></span>'+p.n+'</div>'+
+      '<div class="ps"><span class="mono tnum">'+p.ok+'%</span> healthy \u00b7 <span class="mono tnum">'+p.syncs+'</span> syncs today</div></div>';
+  }).join('');
+  $('#cxCount').textContent=CXFAILS.length+' rows';
+  $('#tblCx').innerHTML=CXFAILS.length?CXFAILS.map(function(f,ix){
+    return '<tr><td><b style="color:var(--ink)">'+esc(f.co)+'</b></td><td>'+esc(f.cx)+'</td><td style="font-size:11.5px;color:var(--ink-3)">'+esc(f.err)+'</td>'+
+      '<td class="mono" style="font-size:11px">'+esc(f.since)+'</td><td><span class="tag '+f.st+'">'+f.st.toUpperCase()+'</span></td>'+
+      '<td><button class="pillbtn sm" onclick="cxRetry('+ix+')">'+(f.st==='down'?'Reauth':'Retry')+'</button></td></tr>';
+  }).join(''):'<tr><td colspan="6" class="empty">All syncs healthy. This table fills when a connector fails.</td></tr>';
+}
+function cxRetry(ix){var f=CXFAILS[ix];CXFAILS.splice(ix,1);audit('Restored connector '+f.cx,f.co);toast(f.co+' \u00b7 '+f.cx+' restored');renderCx();renderAttention();render();}
+/* ---------- console users ---------- */
+function renderUs(){
+  var isOwner=DATA.actor&&DATA.actor.type==='owner';
+  $('#addUserForm').style.display=isOwner?'':'none';
+  $('#tblUs').innerHTML='<tr><td class="mono">you</td><td><b style="color:var(--ink)">Owner</b></td><td class="mono" style="font-size:11px">via ADMIN_PASSWORD</td><td><span class="tag owner">OWNER</span></td><td class="mono">now</td><td></td></tr>'+
+   (DATA.users||[]).map(function(u){
+    var del=isOwner?'<button class="pillbtn sm danger" onclick="delUserAsk('+u.id+',\''+esc(u.name)+'\')">Remove</button>':'';
+    return '<tr><td class="mono" style="white-space:nowrap">'+fmtDate(u.created_at)+'</td><td><b style="color:var(--ink)">'+esc(u.name)+'</b></td><td class="mono" style="font-size:11px">'+esc(u.email)+'</td>'+
+      '<td><span class="tag '+esc(u.role)+'">'+esc(u.role).toUpperCase()+'</span></td><td class="mono" style="white-space:nowrap">'+fmtDate(u.last_seen)+'</td><td>'+del+'</td></tr>';
+  }).join('');
+}
+function addUser(){
+  var n=$('#nuName').value.trim(),e=$('#nuEmail').value.trim(),r=$('#nuRole').value;
+  if(!n||!e){toast('Name and email needed');return;}
+  api('POST','adduser',{name:n,email:e,role:r}).then(function(d){
+    if(!d.ok){toast(d.error||'Could not add');return;}
+    DATA.users.push(d.user);$('#nuName').value='';$('#nuEmail').value='';
+    var kr=$('#keyReveal');kr.classList.add('on');
+    kr.innerHTML='Access key for <b>'+esc(d.user.name)+'</b> \u00b7 shown once, send it now:<br><code>'+esc(d.key)+'</code>';
+    audit('Added console user',e);renderUs();
+  }).catch(function(){toast('Could not reach the API')});
+}
+function delUserAsk(id,name){confirmAct('Remove '+name+'?','Their key stops working immediately.','Remove user',true,function(){
+  api('DELETE','deluser',null,'&id='+id).then(function(d){if(d.ok){DATA.users=DATA.users.filter(function(u){return u.id!==id});audit('Removed console user',name);toast(name+' removed');renderUs();}});
+});}
+/* ---------- audit + flags ---------- */
+function renderAudit(){
+  $('#tblAu').innerHTML=AUDIT.map(function(a){
+    return '<tr><td class="mono" style="white-space:nowrap">'+fmtDate(a.when)+'</td><td>'+esc(a.actor)+(a.session?' <span class="mini">SESSION</span>':'')+'</td><td><b style="color:var(--ink)">'+esc(a.action)+'</b></td><td class="mono" style="font-size:11px">'+esc(a.target)+'</td></tr>';
+  }).join('');
+}
+function renderFlags(){
+  $('#flagList').innerHTML=FLAGS.map(function(f,ix){
+    return '<div class="kv"><span><b>'+esc(f.n)+'</b><div class="hint" style="margin:1px 0 0">'+esc(f.d)+'</div></span>'+
+    '<button class="pillbtn sm '+(f.on?'primary':'')+'" onclick="flagT('+ix+')">'+(f.on?'On':'Off')+'</button></div>';
+  }).join('');
+}
+function flagT(ix){var f=FLAGS[ix];f.on=!f.on;audit((f.on?'Enabled ':'Disabled ')+f.n,'');toast(f.n+(f.on?' on':' off'));renderFlags();}
+
+function requestKey(){
+  var em=($('#gateMail').value||'').trim();
+  var err=$('#gateErr'), ok=$('#gateOk');
+  err.style.display='none'; ok.style.display='none';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){err.textContent='Enter your work email first, so the owner knows where to send the key.';err.style.display='block';return;}
+  var b=$('#reqBtn'); b.disabled=true; b.textContent='Sending request';
+  try{
+    fetch('/api/report',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'question',message:'Requesting a console access key.',email:em,page:'console gate',app:'console'})}).catch(function(){});
+  }catch(e){}
+  setTimeout(function(){
+    b.disabled=false; b.textContent='Request access key';
+    ok.textContent='Request sent. The owner reviews it and your key arrives by email.';
+    ok.style.display='block';
+  },600);
+}
+var WSL=[];
+function loadWs(){
+  api('GET','workspaces').then(function(d){
+    if(!d.ok)return; WSL=d.workspaces||[];
+    var isOwner=DATA.actor&&DATA.actor.type==='owner';
+    var fm=$('#wsForm'); if(fm)fm.style.display=isOwner?'':'none';
+    var ing=$('#ingWs'); if(ing)ing.parentElement.style.display=isOwner?'':'none';
+    if($('#tblWs'))$('#tblWs').innerHTML=WSL.length?WSL.map(function(w){
+      return '<tr><td class="mono" style="white-space:nowrap">'+fmtDate(w.created_at)+'</td><td><b style="color:var(--ink)">'+esc(w.name)+'</b></td><td class="mono" style="font-size:11px">'+esc(w.domain||'')+'</td><td><span class="tag '+(w.status==='active'?'active':'suspended')+'">'+esc(w.status).toUpperCase()+'</span></td></tr>';
+    }).join(''):'<tr><td colspan="4" class="empty">No pilot workspaces yet. Create the first one above.</td></tr>';
+    if(ing)ing.innerHTML=WSL.map(function(w){return '<option value="'+w.id+'">'+esc(w.name)+'</option>'}).join('')||'<option value="">Create a workspace first</option>';
+  }).catch(function(){});
+}
+function addWs(){
+  var n=$('#wsName').value.trim(), dm=$('#wsDomain').value.trim();
+  if(!n){toast('Company name needed');return;}
+  api('POST','addworkspace',{name:n,domain:dm}).then(function(d){
+    if(!d.ok){toast(d.error||'Could not create');return;}
+    $('#wsName').value='';$('#wsDomain').value='';
+    var kr=$('#wsReveal');kr.classList.add('on');
+    kr.innerHTML='Access code for <b>'+esc(d.ws.name)+'</b> \u00b7 shown once, send it to the pilot company:<br><code>'+esc(d.code)+'</code>';
+    audit('Created pilot workspace',d.ws.name);toast(d.ws.name+' created');loadWs();
+  }).catch(function(){toast('Could not reach the API')});
+}
+function parseCsv(text){
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim()});
+  if(lines.length<2)return {err:'CSV needs a header row plus data rows'};
+  function cells(l){var out=[],cur='',q=false;for(var i=0;i<l.length;i++){var c=l[i];
+    if(q){if(c==='"'){if(l[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else{if(c==='"')q=true;else if(c===','){out.push(cur);cur='';}else cur+=c;}}out.push(cur);return out;}
+  var head=cells(lines[0]).map(function(hh){return hh.trim().toLowerCase()});
+  var need=['day','email'];
+  for(var k=0;k<need.length;k++)if(head.indexOf(need[k])<0)return {err:'Missing column: '+need[k]};
+  var idx={};['day','email','name','department','tool','prompts','tokens','cost'].forEach(function(c){idx[c]=head.indexOf(c)});
+  var rows=[];
+  for(var i=1;i<lines.length&&rows.length<5000;i++){
+    var c=cells(lines[i]);
+    rows.push({day:(c[idx.day]||'').trim(),email:(c[idx.email]||'').trim(),
+      name:idx.name>=0?(c[idx.name]||'').trim():'',department:idx.department>=0?(c[idx.department]||'').trim():'',
+      tool:idx.tool>=0?(c[idx.tool]||'').trim():'',prompts:idx.prompts>=0?(c[idx.prompts]||'0').trim():'0',
+      tokens:idx.tokens>=0?(c[idx.tokens]||'0').trim():'0',cost:idx.cost>=0?(c[idx.cost]||'0').trim():'0'});
+  }
+  return {rows:rows};
+}
+function ingestCsv(){
+  var f=$('#ingFile').files[0], wsId=$('#ingWs').value, msg=$('#ingMsg');
+  if(!wsId){toast('Create a workspace first');return;}
+  if(!f){toast('Choose a CSV file');return;}
+  msg.textContent='Reading file';
+  var rd=new FileReader();
+  rd.onload=function(){
+    var p=parseCsv(String(rd.result||''));
+    if(p.err){msg.textContent='';toast(p.err);return;}
+    msg.textContent='Uploading '+p.rows.length+' rows';
+    api('POST','ingest',{workspace_id:parseInt(wsId,10),rows:p.rows}).then(function(d){
+      if(!d.ok){msg.textContent='';toast(d.error||'Upload failed');return;}
+      msg.textContent='Inserted '+d.inserted+' rows'+(d.skipped?(' \u00b7 skipped '+d.skipped):'');
+      audit('Ingested '+d.inserted+' usage rows','workspace '+wsId);
+      toast('Usage data live for the pilot');
+      $('#ingFile').value='';
+    }).catch(function(){msg.textContent='';toast('Could not reach the API')});
+  };
+  rd.readAsText(f);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  $('#gateKey').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
+  ddClock();
+  if(KEY)boot();else gate();
+});
+</script>
+</body>
+</html>

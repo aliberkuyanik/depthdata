@@ -1,0 +1,5 @@
+day,email,name,department,tool,prompts,tokens,cost
+2026-08-24,maya@acme.com,Maya Chen,Engineering,ChatGPT,42,180000,3.20
+2026-08-24,leo@acme.com,Leo Brandt,Design,Claude,31,120000,2.10
+2026-08-25,maya@acme.com,Maya Chen,Engineering,ChatGPT,38,160000,2.90
+2026-08-25,ines@acme.com,Ines Vogel,Marketing,Copilot,12,40000,0.80

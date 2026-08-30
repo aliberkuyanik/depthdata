@@ -1,1 +1,5 @@
-{"redirects":[{"source":"/demo","destination":"/demo/","permanent":false}],"rewrites":[{"source":"/demo/","destination":"https://depthdata-demo.vercel.app/index.html"},{"source":"/demo/:path*","destination":"https://depthdata-demo.vercel.app/:path*"},{"source":"/api/:path*","destination":"https://depthdata-demo.vercel.app/api/:path*"}]}
+{
+  "crons": [
+    { "path": "/api/sync", "schedule": "0 5 * * *" }
+  ]
+}
