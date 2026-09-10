@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>DepthData Console</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root,[data-theme="dark"]{--bg:#333234;--surface:#2B2A2C;--surface-2:#26262C;--border:rgba(225,224,217,.30);--border-strong:rgba(225,224,217,.42);
 --ink:#F4F4F5;--ink-2:#A1A1AA;--ink-3:#71717A;--accent:#D7FF87;--accent-2:#C3EE6B;--accent-soft:rgba(215,255,135,.16);--accent-line:rgba(215,255,135,.4);
@@ -15,7 +15,7 @@
 --r-sm:5px;--r:6px;--r-lg:8px;--shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 24px rgba(0,0,0,.3)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:'TT Commons','TT Commons Pro','Inter Tight','Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
+body{background:var(--bg);color:var(--ink);font-family:'Inter','Inter Tight','Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
 .mono{font-family:'JetBrains Mono',monospace}
 .tnum{font-variant-numeric:tabular-nums}
 a{color:inherit;text-decoration:none}
@@ -26,7 +26,7 @@ a{color:inherit;text-decoration:none}
 .brand-mark{width:32px;height:32px;flex:0 0 auto;background:none;box-shadow:none;display:grid;place-items:center}
 .brand-mark svg{width:28px!important;height:28px!important}
 .brand-mark svg path{fill:var(--accent)!important}
-.brand-name{font-family:'TT Commons','TT Commons Pro','Inter Tight';font-weight:700;font-size:16.5px;letter-spacing:-.02em}
+.brand-name{font-family:'Inter','Inter Tight';font-weight:700;font-size:16.5px;letter-spacing:-.02em}
 .brand-name path{fill:var(--ink)!important}
 .brand-tag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.16em;color:var(--ink-3);margin-left:2px;align-self:flex-end;padding-bottom:3px}
 .nav{display:flex;flex-direction:column;gap:2px}
@@ -261,6 +261,7 @@ select.prisel.p4{color:var(--ink-3);background-color:var(--surface-2)}
   <a class="active" data-v="pulse" onclick="show('pulse')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Pulse</a>
   <div class="nav-label" style="margin-top:10px">Revenue &amp; accounts</div>
   <a data-v="comp" onclick="show('comp')"><svg viewBox="0 0 24 24"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M4 21h16M8 8h2M8 12h2M8 16h2M17 13h1M17 17h1"/></svg>Companies<span class="cnt" id="nComp"></span></a>
+  <a data-v="acct" onclick="show('acct')"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M15.5 5.4a3.2 3.2 0 0 1 0 5.2M17.5 13.6A5.5 5.5 0 0 1 20.5 19"/></svg>Accounts<span class="cnt" id="nAcct"></span></a>
   <a data-v="req" onclick="show('req')"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 6.5a3 3 0 0 1 0 5.5M18 19a5 5 0 0 0-3-4.6"/></svg>Demo requests<span class="cnt" id="nReq"></span></a>
   <a data-v="em" onclick="show('em')"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>Emails</a>
   <div class="nav-label" style="margin-top:10px">Support</div>
@@ -334,6 +335,21 @@ select.prisel.p4{color:var(--ink-3);background-color:var(--surface-2)}
   <div class="card" style="overflow-x:auto">
     <table><thead><tr><th>Company</th><th>Plan</th><th>Seats</th><th>MRR</th><th>Health</th><th>Status</th><th>Last activity</th><th></th></tr></thead>
     <tbody id="tblComp"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-acct" style="display:none">
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/></svg><input type="text" id="acSearch" placeholder="Search name, email, company" oninput="renderAcct()"></div>
+    <div class="chips" id="acF">
+      <button class="chip on" data-v="all" onclick="acF('all',this)">All</button>
+      <button class="chip" data-v="connected" onclick="acF('connected',this)">Connected a tool</button>
+      <button class="chip" data-v="empty" onclick="acF('empty',this)">Not connected</button>
+    </div>
+    <span class="cf live" style="margin-left:auto">LIVE</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table><thead><tr><th>Signed up</th><th>Who</th><th>Company</th><th>Connected tools</th><th>Workspace</th><th></th></tr></thead>
+    <tbody id="tblAcct"></tbody></table>
   </div>
 </div>
 <div class="view" id="v-req" style="display:none">
@@ -542,7 +558,7 @@ function sGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
 function sSet(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
 function sDel(k){try{sessionStorage.removeItem(k)}catch(e){}}
 var KEY=sGet('dd_admin_key')||'';
-var DATA={requests:[],reports:[],support:[],users:[],actor:null};
+var DATA={requests:[],reports:[],support:[],users:[],accounts:[],actor:null};
 var TFILTER='all', RQF='all', EMFV='all', COF={plan:'all',st:'all'}, SEL={}, CUR=null, CURTAB='ov';
 function $(s){return document.querySelector(s)}
 function $$(s){return [...document.querySelectorAll(s)]}
@@ -577,7 +593,7 @@ function boot(){
     $('#pfName').textContent=d.actor?(d.actor.type==='owner'?'Owner':d.actor.name):'';
     $('#pfRole').textContent=d.actor?(d.actor.type==='owner'?'FULL ACCESS':(d.actor.role||'viewer').toUpperCase()):'';
     $('#pfAv').textContent=(($('#pfName').textContent||'O')[0]||'O').toUpperCase();
-    render();loadWs();
+    render();loadWs();loadAccounts();
   }).catch(function(e){
     if(e==='auth'){gate('Wrong key. Try again.');return;}
     $('#gate').style.display='none';$('#shell').style.display='';
@@ -588,7 +604,7 @@ function boot(){
 function show(view){
   $$('.nav a').forEach(function(a){a.classList.toggle('active',a.dataset.v===view)});
   $$('.view').forEach(function(v){v.style.display=v.id==='v-'+view?'':'none'});
-  var T={pulse:['Pulse','Command center'],comp:['Companies','Accounts and health'],req:['Demo requests','Lead pipeline'],em:['Emails','Collected addresses'],tk:['Tickets','Bugs, feedback and support'],cx:['Connectors','Platform sync health'],us:['Console users','Access to this console'],au:['Audit log','Every admin action'],se:['Settings','Channels, flags and data']};
+  var T={pulse:['Pulse','Command center'],comp:['Companies','Accounts and health'],acct:['Accounts','Who signed up'],req:['Demo requests','Lead pipeline'],em:['Emails','Collected addresses'],tk:['Tickets','Bugs, feedback and support'],cx:['Connectors','Platform sync health'],us:['Console users','Access to this console'],au:['Audit log','Every admin action'],se:['Settings','Channels, flags and data']};
   $('#pgTitle').textContent=T[view][0];$('#pgSub').textContent=T[view][1].toUpperCase();
 }
 function refresh(){boot();toast('Refreshed')}
@@ -1080,6 +1096,44 @@ function ingestCsv(){
   };
   rd.readAsText(f);
 }
+
+var ACF='all';
+function acF(v,el){ACF=v;[...el.parentElement.children].forEach(function(c){c.classList.toggle('on',c===el)});renderAcct();}
+function loadAccounts(){
+  api('GET','accounts').then(function(d){
+    if(!d.ok)return; DATA.accounts=d.accounts||[];
+    if($('#nAcct'))$('#nAcct').textContent=DATA.accounts.length||'';
+    renderAcct();
+  }).catch(function(){});
+}
+function renderAcct(){
+  var q=($('#acSearch')?$('#acSearch').value:'').toLowerCase();
+  var list=(DATA.accounts||[]).filter(function(a){
+    if(ACF==='connected'&&!a.connected)return false;
+    if(ACF==='empty'&&a.connected)return false;
+    if(q&&!((a.name||'').toLowerCase().includes(q)||(a.email||'').toLowerCase().includes(q)||(a.company||'').toLowerCase().includes(q)))return false;
+    return true;
+  });
+  var tb=$('#tblAcct'); if(!tb)return;
+  tb.innerHTML=list.length?list.map(function(a){
+    var cx=(a.connectors||[]).map(function(c){
+      var col=c.status==='connected'?'active':(c.status==='error'?'bug':'contacted');
+      return '<span class="tag '+col+'">'+esc(c.provider).toUpperCase()+'</span>';
+    }).join(' ')||'<span class="mini">none yet</span>';
+    var isOwner=DATA.actor&&DATA.actor.type==='owner';
+    var del=isOwner?'<button class="pillbtn sm danger" onclick="delAcctAsk('+a.id+',\''+esc(a.email)+'\')">Delete</button>':'';
+    return '<tr><td class="mono" style="white-space:nowrap">'+fmtDate(a.created_at)+'</td>'+
+      '<td><b style="color:var(--ink)">'+esc(a.name||'\u2014')+'</b><br><span class="mono" style="font-size:11px">'+esc(a.email)+'</span></td>'+
+      '<td>'+esc(a.company||'\u2014')+(a.domain?'<br><span class="mini">'+esc(a.domain)+'</span>':'')+'</td>'+
+      '<td>'+cx+'</td>'+
+      '<td class="mono" style="font-size:11px">#'+a.workspace_id+'</td>'+
+      '<td style="white-space:nowrap">'+del+'</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="empty">No accounts yet. They appear here the moment someone signs up at depthdata.app.</td></tr>';
+}
+function delAcctAsk(id,email){confirmAct('Delete '+email+'?','Removes the account and its workspace, including any connectors and usage. This cannot be undone.','Delete account',true,function(){
+  api('DELETE','delaccount',null,'&id='+id).then(function(d){if(d.ok){DATA.accounts=DATA.accounts.filter(function(a){return a.id!==id});audit('Deleted account',email);toast(email+' deleted');renderAcct();if($('#nAcct'))$('#nAcct').textContent=DATA.accounts.length||'';}else{toast(d.error||'Could not delete')}});
+});}
+
 document.addEventListener('DOMContentLoaded',function(){
   $('#gateKey').addEventListener('keydown',function(e){if(e.key==='Enter')enter()});
   ddClock();
