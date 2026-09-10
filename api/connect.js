@@ -20,6 +20,7 @@
 
 import { createHash, createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { sessionFromReq } from './auth.js';
+import { connectedEmail, sendEmail } from './lib/email.js';
 import { pullProvider, storeRows } from './sync.js';
 
 const SB = () => process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/';
@@ -125,6 +126,11 @@ export default async function handler(req, res) {
       });
       const row = (await r.json())[0];
       console.log('CONNECT ws=' + s.wid + ' ' + provider);
+      try {
+        const appUrl = 'https://depthdata.app/app';
+        const cm = connectedEmail('', provider, appUrl);
+        if (s.email) sendEmail(s.email, cm.subject, cm.html, true).catch(function(){});
+      } catch (e) {}
       res.status(200).json({ ok: r.ok, connector: row && { id: row.id, provider: row.provider, status: row.status } });
       return;
     }

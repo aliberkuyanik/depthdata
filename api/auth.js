@@ -9,6 +9,7 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, DD_SECRET (any long random string)
 
 import { createHmac, createHash, scryptSync, randomBytes, timingSafeEqual } from 'crypto';
+import { welcomeEmail, sendEmail } from './lib/email.js';
 
 const SB = () => process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/';
 
@@ -89,6 +90,11 @@ export default async function handler(req, res) {
 
       const token = signToken({ aid: acct.id, wid: ws.id, email, exp: Date.now() + 14 * 864e5 });
       console.log('SIGNUP', email, 'ws', ws.id);
+      try {
+        const appUrl = 'https://depthdata.app/app';
+        const wm = welcomeEmail(name, appUrl);
+        sendEmail(email, wm.subject, wm.html, true).catch(function(){});
+      } catch (e) {}
       res.status(200).json({ ok: true, token, ws: { id: ws.id, name: ws.name }, account: { email, name } });
       return;
     }

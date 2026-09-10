@@ -122,6 +122,32 @@ export default async function handler(req, res) {
       return;
     }
 
+    if (req.method === 'GET' && action === 'accounts') {
+      const [accts, wss, cxs] = await Promise.all([
+        sb('accounts?select=id,created_at,email,name,workspace_id,role&order=created_at.desc&limit=500').then((r) => r.json()),
+        sb('workspaces?select=id,name,domain,status').then((r) => r.json()),
+        sb('connectors?select=id,workspace_id,provider,status,last_sync').then((r) => r.json()),
+      ]);
+      const wsById = {};
+      (Array.isArray(wss) ? wss : []).forEach((w) => { wsById[w.id] = w; });
+      const cxByWs = {};
+      (Array.isArray(cxs) ? cxs : []).forEach((c) => { (cxByWs[c.workspace_id] = cxByWs[c.workspace_id] || []).push(c); });
+      const list = (Array.isArray(accts) ? accts : []).map((ac) => {
+        const w = wsById[ac.workspace_id] || null;
+        const cx = cxByWs[ac.workspace_id] || [];
+        return {
+          id: ac.id, created_at: ac.created_at, email: ac.email, name: ac.name, role: ac.role,
+          workspace_id: ac.workspace_id,
+          company: w ? w.name : '',
+          domain: w ? w.domain : '',
+          connectors: cx.map((c) => ({ provider: c.provider, status: c.status, last_sync: c.last_sync })),
+          connected: cx.length,
+        };
+      });
+      res.status(200).json({ ok: true, accounts: list });
+      return;
+    }
+
     if (req.method === 'GET' && action === 'workspaces') {
       const r = await sb('workspaces?select=id,created_at,name,domain,status&order=created_at.desc');
       const rows = r.ok ? await r.json() : [];
@@ -199,6 +225,21 @@ export default async function handler(req, res) {
       });
       const rows = await r.json();
       res.status(200).json({ ok: r.ok, user: rows && rows[0], key });
+      return;
+    }
+
+    if (req.method === 'DELETE' && action === 'delaccount') {
+      if (actor.type !== 'owner') { res.status(403).json({ ok: false, error: 'owner only' }); return; }
+      const id = parseInt((req.query && req.query.id) || '0', 10);
+      if (!id) { res.status(400).json({ ok: false, error: 'id required' }); return; }
+      // fetch the account to get its workspace, then delete account + workspace (cascades connectors/usage)
+      const ar = await sb('accounts?id=eq.' + id + '&select=workspace_id');
+      const rows = ar.ok ? await ar.json() : [];
+      await sb('accounts?id=eq.' + id, { method: 'DELETE' });
+      if (rows[0] && rows[0].workspace_id) {
+        await sb('workspaces?id=eq.' + rows[0].workspace_id, { method: 'DELETE' });
+      }
+      res.status(200).json({ ok: true });
       return;
     }
 
