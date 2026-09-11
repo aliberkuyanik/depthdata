@@ -468,7 +468,7 @@ restart();})();
  function q(id){return document.getElementById(id)}
  function showErr(id,msg){var e=q(id);if(!e)return;if(msg)e.textContent=msg;e.classList.add('show');}
  function clrErr(id){var e=q(id);if(e)e.classList.remove('show');}
- function go(tok,ws,dest){try{sessionStorage.setItem('dd_sess',tok);sessionStorage.setItem('dd_ws',JSON.stringify({name:ws.name,session:true}));}catch(e){}
+ function go(tok,ws,dest,acct){try{sessionStorage.setItem('dd_sess',tok);sessionStorage.setItem('dd_ws',JSON.stringify({name:ws.name,session:true,userName:(acct&&acct.name)||'',userEmail:(acct&&acct.email)||''}));}catch(e){}
    window.location.href=dest||'app.html';}
  function post(action,body,btn,busyLabel,errId,okFn){
    var orig=btn.textContent;btn.textContent=busyLabel;btn.disabled=true;
@@ -488,7 +488,7 @@ restart();})();
    post('signup',{name:name,email:email,company:co,password:pw},su,'Creating your workspace','suErr',function(d){
      try{fetch('/api/request-access',{method:'POST',headers:{'Content-Type':'application/json'},
        body:JSON.stringify({name:name,email:email,company:co,source:'self serve signup'})}).catch(function(){});}catch(e){}
-     go(d.token,d.ws,'welcome.html');
+     go(d.token,d.ws,'welcome.html',d.account);
    });
  },true);
  var si=q('siGo');
@@ -498,7 +498,7 @@ restart();})();
    ev.preventDefault();ev.stopImmediatePropagation();clrErr('siErr');
    var email=(q('siEmail').value||'').trim();
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){showErr('siErr','That does not look like an email.');return;}
-   post('signin',{email:email,password:pw},si,'Signing in','siErr',function(d){go(d.token,d.ws);});
+   post('signin',{email:email,password:pw},si,'Signing in','siErr',function(d){go(d.token,d.ws,'app.html',d.account);});
  },true);
  })();</script>
 </body>
