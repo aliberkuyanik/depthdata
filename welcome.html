@@ -535,23 +535,48 @@ function showCredPhase(t){
     btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>Continue with '+t.connect.provider;
   }
 }
+var DD_PROVIDER = { claude:'anthropic', anthropic:'anthropic', chatgpt:'openai', openai:'openai', copilot:'copilot', 'github-copilot':'copilot' };
 function verifyAndConnect(t){
   const btn=document.getElementById('mConnect');
   const isKey = t.connect.kind==='key';
-  if(isKey){
-    const v=(document.getElementById('mKeyInput').value||'').trim();
-    if(v.length<8){ document.getElementById('mCredErr').textContent='Paste the key first. It should look like the placeholder.'; document.getElementById('mCredErr').style.display='block'; return; }
-    if(t.connect.custom){
-      const nm=(document.getElementById('mNameInput').value||'').trim();
-      if(!nm){ document.getElementById('mCredErr').textContent='Give the tool a name so you can recognize it on the dashboard.'; document.getElementById('mCredErr').style.display='block'; return; }
-      t = makeCustomTool(nm); pending = t;
-    }
-    document.getElementById('mCredErr').style.display='none';
-    btn.classList.add('busy'); btn.textContent='Verifying key\u2026';
-  } else {
-    btn.classList.add('busy'); btn.textContent='Waiting for '+t.connect.provider+' approval\u2026';
+  if(!isKey){ btn.classList.add('busy'); btn.textContent='Waiting for '+t.connect.provider+' approval\u2026'; setTimeout(()=>{ btn.classList.remove('busy'); connectTool(t); }, 1100); return; }
+  const v=(document.getElementById('mKeyInput').value||'').trim();
+  if(v.length<8){ document.getElementById('mCredErr').textContent='Paste the key first. It should look like the placeholder.'; document.getElementById('mCredErr').style.display='block'; return; }
+  if(t.connect.custom){
+    const nm=(document.getElementById('mNameInput').value||'').trim();
+    if(!nm){ document.getElementById('mCredErr').textContent='Give the tool a name so you can recognize it on the dashboard.'; document.getElementById('mCredErr').style.display='block'; return; }
+    t = makeCustomTool(nm); pending = t;
   }
-  setTimeout(()=>{ btn.classList.remove('busy'); connectTool(t); }, 1100);
+  document.getElementById('mCredErr').style.display='none';
+  var prov = DD_PROVIDER[t.id] || DD_PROVIDER[(t.connect&&t.connect.provider||'').toLowerCase()] || null;
+  // Only Claude/ChatGPT/Copilot have a real backend connector today.
+  if(!prov){
+    // no real connector for this tool yet: keep the onboarding illustration for it, but be honest
+    btn.classList.add('busy'); btn.textContent='Saving\u2026';
+    setTimeout(()=>{ btn.classList.remove('busy'); connectTool(t); }, 900); return;
+  }
+  var tk=null; try{ tk = sessionStorage.getItem('dd_sess'); }catch(e){}
+  if(!tk){ document.getElementById('mCredErr').textContent='Please sign in first, then connect.'; document.getElementById('mCredErr').style.display='block'; return; }
+  var meta = (t.connect && t.connect.metaValue) ? t.connect.metaValue : '';
+  btn.classList.add('busy'); btn.textContent='Verifying with vendor\u2026';
+  fetch('/api/connect',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({provider:prov,key:v,meta:meta})})
+  .then(function(r){return r.json()}).then(function(d){
+    btn.classList.remove('busy'); btn.textContent='Verify & connect';
+    if(d && d.ok){
+      // real connection saved. Sync immediately, then go to the REAL app.
+      fetch('/api/connect?action=syncnow',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({id:d.connector&&d.connector.id})}).catch(function(){});
+      document.getElementById('overlay').classList.remove('show');
+      toast(t.name+' connected, read-only. Opening your dashboard.');
+      setTimeout(function(){ window.location.href='app.html'; }, 900);
+    } else {
+      document.getElementById('mCredErr').textContent=(d && d.error) || 'Could not verify the key. Check it is an Admin key and try again.';
+      document.getElementById('mCredErr').style.display='block';
+    }
+  }).catch(function(){
+    btn.classList.remove('busy'); btn.textContent='Verify & connect';
+    document.getElementById('mCredErr').textContent='Could not reach the server. Try again.';
+    document.getElementById('mCredErr').style.display='block';
+  });
 }
 function closeModal(){ document.getElementById('overlay').classList.remove('show'); if(!state.connected.length) setStep(0); }
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target.id==='overlay') closeModal(); });
