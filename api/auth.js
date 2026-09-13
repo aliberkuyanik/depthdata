@@ -142,6 +142,44 @@ export default async function handler(req, res) {
       return;
     }
 
+    if (req.method === 'POST' && action === 'delete-request') {
+      const s = await sessionFromReq(req);
+      if (!s) { res.status(401).json({ ok: false, error: 'unauthorized' }); return; }
+      // generate 6-digit code, store with 15-min expiry (in accounts table meta or a codes table)
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const expires = Date.now() + 15 * 60 * 1000;
+      // store code hashed in the account row (reuse a column via PATCH to a codes table)
+      await sb('accounts?id=eq.' + s.aid, { method: 'PATCH', body: JSON.stringify({ del_code: code, del_code_exp: expires }) });
+      // email the code
+      try {
+        const html = '<!doctype html><html><body style="margin:0;background:#262624;font-family:Helvetica,Arial,sans-serif;color:#F5F4ED;padding:32px 16px"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto"><tr><td style="padding:0 0 22px"><span style="font-size:18px;font-weight:700">Depth<span style="color:#C8F24E">data</span></span></td></tr><tr><td style="background:#30302E;border:1px solid #3B3B38;border-radius:12px;padding:30px 28px"><div style="font-size:20px;font-weight:700;margin-bottom:12px">Confirm account deletion</div><div style="font-size:14px;line-height:1.6;color:#B7B5A9;margin-bottom:20px">You asked to delete your DepthData workspace. Enter this code to confirm. It expires in 15 minutes.</div><div style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#D7FF87;background:#2B2B28;border-radius:10px;padding:16px;text-align:center">' + code + '</div><div style="font-size:12px;color:#85837A;margin-top:20px">If you did not request this, ignore this email and your account stays safe. Nothing is deleted until the code is entered.</div></td></tr></table></body></html>';
+        await sendEmail(s.email, 'Confirm your DepthData account deletion', html, true);
+      } catch (e) {}
+      console.log('DELETE_REQUEST', s.email);
+      res.status(200).json({ ok: true, sent: true });
+      return;
+    }
+
+    if (req.method === 'POST' && action === 'delete-confirm') {
+      const s = await sessionFromReq(req);
+      if (!s) { res.status(401).json({ ok: false, error: 'unauthorized' }); return; }
+      const body = req.body || {};
+      const code = String(body.code || '').trim();
+      if (!code) { res.status(400).json({ ok: false, error: 'code required' }); return; }
+      // fetch stored code
+      const ar = await sb('accounts?id=eq.' + s.aid + '&select=del_code,del_code_exp,workspace_id');
+      const acct = (await ar.json())[0];
+      if (!acct || !acct.del_code) { res.status(400).json({ ok: false, error: 'no pending deletion. request a code first' }); return; }
+      if (Date.now() > Number(acct.del_code_exp || 0)) { res.status(400).json({ ok: false, error: 'code expired. request a new one' }); return; }
+      if (String(acct.del_code) !== code) { res.status(400).json({ ok: false, error: 'wrong code' }); return; }
+      // delete: account + its workspace (cascades connectors + usage)
+      await sb('accounts?id=eq.' + s.aid, { method: 'DELETE' });
+      if (acct.workspace_id) { await sb('workspaces?id=eq.' + acct.workspace_id, { method: 'DELETE' }); }
+      console.log('DELETE_CONFIRMED', s.email, 'ws', acct.workspace_id);
+      res.status(200).json({ ok: true, deleted: true });
+      return;
+    }
+
     res.status(400).json({ ok: false, error: 'unknown action' });
   } catch (e) {
     console.error('AUTH_ERROR', e && e.message);
