@@ -75,27 +75,82 @@ export default async function handler(req, res) {
       const company = String(b.company || '').slice(0, 120).trim() || (email.split('@')[1] || 'Workspace');
       const password = String(b.password || '');
       if (!EMAIL_RE.test(email)) { res.status(400).json({ ok: false, error: 'Enter a valid work email.' }); return; }
+      // password requirements
       if (password.length < 8) { res.status(400).json({ ok: false, error: 'Password needs at least 8 characters.' }); return; }
+      if (!/[A-Z]/.test(password)) { res.status(400).json({ ok: false, error: 'Password needs an uppercase letter.' }); return; }
+      if (!/[a-z]/.test(password)) { res.status(400).json({ ok: false, error: 'Password needs a lowercase letter.' }); return; }
+      if (!/[0-9]/.test(password)) { res.status(400).json({ ok: false, error: 'Password needs a number.' }); return; }
+      if (!/[^A-Za-z0-9]/.test(password)) { res.status(400).json({ ok: false, error: 'Password needs a symbol.' }); return; }
 
-      const dupe = await sb('accounts?email=eq.' + encodeURIComponent(email) + '&select=id');
-      if ((await dupe.json()).length) { res.status(409).json({ ok: false, error: 'An account with this email already exists. Sign in instead.' }); return; }
+      const dupe = await sb('accounts?email=eq.' + encodeURIComponent(email) + '&select=id,verified');
+      const dj = await dupe.json();
+      if (dj.length && dj[0].verified) { res.status(409).json({ ok: false, error: 'An account with this email already exists. Sign in instead.' }); return; }
 
-      const wsr = await sb('workspaces', { method: 'POST', body: JSON.stringify({ name: company, domain: email.split('@')[1] || '', code_hash: 'acct_' + createHash('sha256').update(email + Date.now()).digest('hex') }) });
-      const ws = (await wsr.json())[0];
-      if (!ws) { res.status(500).json({ ok: false, error: 'Could not create workspace.' }); return; }
+      const vcode = String(Math.floor(100000 + Math.random() * 900000));
+      const vexp = Date.now() + 15 * 60 * 1000;
 
-      const ar = await sb('accounts', { method: 'POST', body: JSON.stringify({ email, name, pass_hash: hashPass(password), workspace_id: ws.id }) });
-      const acct = (await ar.json())[0];
-      if (!acct) { res.status(500).json({ ok: false, error: 'Could not create account.' }); return; }
+      let ws, acct;
+      if (dj.length) {
+        // unverified account exists (re-signup) - reuse, update password + new code
+        const ar0 = await sb('accounts?id=eq.' + dj[0].id + '&select=id,workspace_id');
+        acct = (await ar0.json())[0];
+        await sb('accounts?id=eq.' + acct.id, { method: 'PATCH', body: JSON.stringify({ name, pass_hash: hashPass(password), verify_code: vcode, verify_exp: vexp }) });
+        ws = { id: acct.workspace_id, name: company };
+        await sb('workspaces?id=eq.' + acct.workspace_id, { method: 'PATCH', body: JSON.stringify({ name: company }) });
+      } else {
+        const wsr = await sb('workspaces', { method: 'POST', body: JSON.stringify({ name: company, domain: email.split('@')[1] || '', code_hash: 'acct_' + createHash('sha256').update(email + Date.now()).digest('hex') }) });
+        ws = (await wsr.json())[0];
+        if (!ws) { res.status(500).json({ ok: false, error: 'Could not create workspace.' }); return; }
+        const ar = await sb('accounts', { method: 'POST', body: JSON.stringify({ email, name, pass_hash: hashPass(password), workspace_id: ws.id, verified: false, verify_code: vcode, verify_exp: vexp }) });
+        acct = (await ar.json())[0];
+        if (!acct) { res.status(500).json({ ok: false, error: 'Could not create account.' }); return; }
+      }
 
-      const token = signToken({ aid: acct.id, wid: ws.id, email, exp: Date.now() + 14 * 864e5 });
-      console.log('SIGNUP', email, 'ws', ws.id);
+      // email the verification code
       try {
-        const appUrl = 'https://depthdata.app/app';
-        const wm = welcomeEmail(name, appUrl);
-        sendEmail(email, wm.subject, wm.html, true).catch(function(){});
+        const html = '<!doctype html><html><body style="margin:0;background:#262624;font-family:Helvetica,Arial,sans-serif;color:#F5F4ED;padding:32px 16px"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto"><tr><td style="padding:0 0 22px"><span style="font-size:18px;font-weight:700">Depth<span style="color:#C8F24E">data</span></span></td></tr><tr><td style="background:#30302E;border:1px solid #3B3B38;border-radius:12px;padding:30px 28px"><div style="font-size:20px;font-weight:700;margin-bottom:12px">Confirm your email</div><div style="font-size:14px;line-height:1.6;color:#B7B5A9;margin-bottom:20px">Welcome to DepthData. Enter this code to activate your account. It expires in 15 minutes.</div><div style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#D7FF87;background:#2B2B28;border-radius:10px;padding:16px;text-align:center">' + vcode + '</div><div style="font-size:12px;color:#85837A;margin-top:20px">If you did not sign up, ignore this email.</div></td></tr></table></body></html>';
+        sendEmail(email, 'Your DepthData confirmation code', html, true).catch(function(){});
       } catch (e) {}
-      res.status(200).json({ ok: true, token, ws: { id: ws.id, name: ws.name }, account: { email, name } });
+      console.log('SIGNUP_PENDING', email, 'ws', ws.id);
+      res.status(200).json({ ok: true, pending: true, email });
+      return;
+    }
+
+    if (req.method === 'POST' && action === 'verify-signup') {
+      const email = String(b.email || '').trim().toLowerCase();
+      const code = String(b.code || '').trim();
+      if (!EMAIL_RE.test(email) || !code) { res.status(400).json({ ok: false, error: 'Email and code required.' }); return; }
+      const ar = await sb('accounts?email=eq.' + encodeURIComponent(email) + '&select=id,name,email,workspace_id,verify_code,verify_exp,verified');
+      const acct = (await ar.json())[0];
+      if (!acct) { res.status(404).json({ ok: false, error: 'No pending signup for this email.' }); return; }
+      if (acct.verified) { res.status(400).json({ ok: false, error: 'Already verified. Sign in instead.' }); return; }
+      if (!acct.verify_code) { res.status(400).json({ ok: false, error: 'No code on file. Sign up again.' }); return; }
+      if (Date.now() > Number(acct.verify_exp || 0)) { res.status(400).json({ ok: false, error: 'Code expired. Request a new one.' }); return; }
+      if (String(acct.verify_code) !== code) { res.status(400).json({ ok: false, error: 'Wrong code.' }); return; }
+      // activate
+      await sb('accounts?id=eq.' + acct.id, { method: 'PATCH', body: JSON.stringify({ verified: true, verify_code: null, verify_exp: null }) });
+      const wr = await sb('workspaces?id=eq.' + acct.workspace_id + '&select=id,name');
+      const ws = (await wr.json())[0];
+      const token = signToken({ aid: acct.id, wid: acct.workspace_id, email: acct.email, exp: Date.now() + 14 * 864e5 });
+      // welcome email now that verified
+      try { const wm = welcomeEmail(acct.name, 'https://depthdata.app/app'); sendEmail(acct.email, wm.subject, wm.html, true).catch(function(){}); } catch (e) {}
+      console.log('SIGNUP_VERIFIED', acct.email);
+      res.status(200).json({ ok: true, token, ws, account: { email: acct.email, name: acct.name } });
+      return;
+    }
+
+    if (req.method === 'POST' && action === 'resend-signup') {
+      const email = String(b.email || '').trim().toLowerCase();
+      const ar = await sb('accounts?email=eq.' + encodeURIComponent(email) + '&select=id,verified');
+      const acct = (await ar.json())[0];
+      if (!acct || acct.verified) { res.status(400).json({ ok: false, error: 'Nothing to resend.' }); return; }
+      const vcode = String(Math.floor(100000 + Math.random() * 900000));
+      await sb('accounts?id=eq.' + acct.id, { method: 'PATCH', body: JSON.stringify({ verify_code: vcode, verify_exp: Date.now() + 15 * 60 * 1000 }) });
+      try {
+        const html = '<!doctype html><html><body style="margin:0;background:#262624;font-family:Helvetica,Arial,sans-serif;color:#F5F4ED;padding:32px 16px"><table width="100%" style="max-width:520px;margin:0 auto"><tr><td style="background:#30302E;border:1px solid #3B3B38;border-radius:12px;padding:30px 28px"><div style="font-size:18px;font-weight:700;margin-bottom:12px">Your new code</div><div style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#D7FF87;background:#2B2B28;border-radius:10px;padding:16px;text-align:center">' + vcode + '</div></td></tr></table></body></html>';
+        sendEmail(email, 'Your new DepthData code', html, true).catch(function(){});
+      } catch (e) {}
+      res.status(200).json({ ok: true, sent: true });
       return;
     }
 
