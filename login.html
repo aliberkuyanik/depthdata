@@ -242,12 +242,34 @@ body{background:var(--bg);color:var(--ink);
             <input class="fin" id="suCompany" type="text" placeholder="Northwind Labs" autocomplete="organization">
           </label>
             <label class="flabel">Password
-              <input class="fin" id="suPass" type="password" placeholder="At least 8 characters" autocomplete="new-password">
-            </label>
-          <div class="err" id="suErr">Fill in all three fields, with a valid email.</div>
-          <button class="pill primary wide" id="suGo" style="margin-top:16px">Create account<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              <input class="fin" id="suPass" type="password" placeholder="Create a password" autocomplete="new-password">
+      </label>
+      <ul id="suReqs" style="list-style:none;padding:0;margin:6px 0 12px;font-size:11.5px;color:var(--ink-3,#85837A)">
+        <li data-req="len" style="display:flex;align-items:center;gap:7px;padding:2px 0"><span class="reqdot">○</span> At least 8 characters</li>
+        <li data-req="upper" style="display:flex;align-items:center;gap:7px;padding:2px 0"><span class="reqdot">○</span> An uppercase letter</li>
+        <li data-req="lower" style="display:flex;align-items:center;gap:7px;padding:2px 0"><span class="reqdot">○</span> A lowercase letter</li>
+        <li data-req="num" style="display:flex;align-items:center;gap:7px;padding:2px 0"><span class="reqdot">○</span> A number</li>
+        <li data-req="sym" style="display:flex;align-items:center;gap:7px;padding:2px 0"><span class="reqdot">○</span> A symbol (!@#$...)</li>
+      </ul>
+      <label class="flabel">Confirm password
+        <input class="fin" id="suPass2" type="password" placeholder="Re-enter password" autocomplete="new-password">
+      </label>
+      <div class="err" id="suErr">Fill in all fields, with a valid email.</div>
+      <button class="pill primary wide" id="suGo" style="margin-top:16px">Create account</button>
           <div class="terms">By creating an account you agree to the <a href="#">Terms</a> and <a href="#">Privacy policy</a>.</div>
+    
         </div>
+<div id="fVerify" style="display:none">
+      <div style="font-size:15px;font-weight:600;color:var(--ink,#F5F4ED);margin-bottom:8px">Check your email</div>
+      <div style="font-size:13px;line-height:1.55;color:var(--ink-2,#B7B5A9);margin-bottom:18px">We sent a 6-digit code to <b id="vfEmail" style="color:var(--ink,#F5F4ED)"></b>. Enter it to activate your account.</div>
+      <input class="fin" id="vfCode" type="text" maxlength="6" inputmode="numeric" placeholder="000000" style="text-align:center;font-family:monospace;font-size:22px;letter-spacing:8px">
+      <div class="err" id="vfErr"></div>
+      <button class="pill primary wide" id="vfGo" style="margin-top:14px">Verify & continue</button>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px">
+        <button id="vfResend" style="border:none;background:transparent;color:var(--ink-3,#85837A);cursor:pointer;text-decoration:underline;font-family:inherit">Resend code</button>
+        <button id="vfBack" style="border:none;background:transparent;color:var(--ink-3,#85837A);cursor:pointer;font-family:inherit">Back</button>
+      </div>
+    </div>
 
         <div class="orline"><span>or</span></div>
         <div class="oauth">
@@ -478,19 +500,59 @@ restart();})();
      if(d&&d.ok)okFn(d);else showErr(errId,(d&&d.error)||'Something went wrong. Try again.');
    }).catch(function(){btn.disabled=false;btn.textContent=orig;showErr(errId,'Could not reach the server. Try again.');});
  }
- var su=q('suGo');
- if(su)su.addEventListener('click',function(ev){
-   ev.preventDefault();ev.stopImmediatePropagation();clrErr('suErr');
-   var name=(q('suName').value||'').trim(),email=(q('suEmail').value||'').trim(),
-       co=(q('suCompany').value||'').trim(),pw=q('suPass')?q('suPass').value:'';
-   if(!name||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||!co){showErr('suErr','Fill in all fields, with a valid work email.');return;}
-   if(pw.length<8){showErr('suErr','Password needs at least 8 characters.');return;}
-   post('signup',{name:name,email:email,company:co,password:pw},su,'Creating your workspace','suErr',function(d){
-     try{fetch('/api/request-access',{method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({name:name,email:email,company:co,source:'self serve signup'})}).catch(function(){});}catch(e){}
-     go(d.token,d.ws,'welcome.html',d.account);
-   });
- },true);
+ // live password requirement checking
+  var pwInput=q('suPass');
+  function checkReqs(){
+    var pw=pwInput?pwInput.value:'';
+    var reqs={len:pw.length>=8,upper:/[A-Z]/.test(pw),lower:/[a-z]/.test(pw),num:/[0-9]/.test(pw),sym:/[^A-Za-z0-9]/.test(pw)};
+    var ul=q('suReqs');if(!ul)return reqs;
+    ul.querySelectorAll('li').forEach(function(li){
+      var ok=reqs[li.getAttribute('data-req')];var dot=li.querySelector('.reqdot');
+      if(dot)dot.textContent=ok?'\u25CF':'\u25CB';
+      li.style.color=ok?'#7FB59A':'var(--ink-3,#85837A)';
+    });
+    return reqs;
+  }
+  if(pwInput)pwInput.addEventListener('input',checkReqs);
+  var pendingEmail='';
+  var su=q('suGo');
+  if(su)su.addEventListener('click',function(ev){
+    ev.preventDefault();ev.stopImmediatePropagation();clrErr('suErr');
+    var name=(q('suName').value||'').trim(),email=(q('suEmail').value||'').trim(),
+        co=(q('suCompany').value||'').trim(),pw=q('suPass')?q('suPass').value:'',pw2=q('suPass2')?q('suPass2').value:'';
+    if(!name||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)||!co){showErr('suErr','Fill in all fields, with a valid work email.');return;}
+    var r=checkReqs();
+    if(!(r.len&&r.upper&&r.lower&&r.num&&r.sym)){showErr('suErr','Password does not meet all requirements.');return;}
+    if(pw!==pw2){showErr('suErr','Passwords do not match.');return;}
+    pendingEmail=email;
+    post('signup',{name:name,email:email,company:co,password:pw},su,'Sending code','suErr',function(d){
+      if(d&&d.pending){
+        // show verify step
+        if(q('fSignup'))q('fSignup').style.display='none';
+        if(q('fVerify'))q('fVerify').style.display='block';
+        if(q('vfEmail'))q('vfEmail').textContent=email;
+      }
+    });
+  },true);
+  // verify code step
+  var vfGo=q('vfGo');
+  if(vfGo)vfGo.addEventListener('click',function(ev){
+    ev.preventDefault();clrErr('vfErr');
+    var code=(q('vfCode').value||'').trim();
+    if(code.length!==6){showErr('vfErr','Enter the 6-digit code.');return;}
+    post('verify-signup',{email:pendingEmail,code:code},vfGo,'Verifying','vfErr',function(d){
+      if(d&&d.token){go(d.token,d.ws,'welcome.html',d.account);}
+    });
+  });
+  var vfResend=q('vfResend');
+  if(vfResend)vfResend.addEventListener('click',function(){
+    post('resend-signup',{email:pendingEmail},vfResend,'','vfErr',function(){});
+  });
+  var vfBack=q('vfBack');
+  if(vfBack)vfBack.addEventListener('click',function(){
+    if(q('fVerify'))q('fVerify').style.display='none';
+    if(q('fSignup'))q('fSignup').style.display='block';
+  });
  var si=q('siGo');
  if(si)si.addEventListener('click',function(ev){
    var pw=q('siPass')?q('siPass').value:'';
