@@ -120,7 +120,25 @@ export default async function handler(req, res) {
       if (!s) { res.status(401).json({ ok: false, error: 'unauthorized' }); return; }
       const wr = await sb('workspaces?id=eq.' + s.wid + '&select=id,name');
       const ws = (await wr.json())[0];
-      res.status(200).json({ ok: true, account: { email: s.email }, ws });
+      const ar = await sb('accounts?id=eq.' + s.aid + '&select=id,name,email,created_at,role'); const acct=(await ar.json())[0]||{email:s.email}; res.status(200).json({ ok: true, account: acct, ws });
+      return;
+    }
+
+    if (req.method === 'POST' && action === 'update') {
+      const s = await sessionFromReq(req);
+      if (!s) { res.status(401).json({ ok: false, error: 'unauthorized' }); return; }
+      const body = req.body || {};
+      // update workspace name
+      if (typeof body.wsName === 'string' && body.wsName.trim()) {
+        await sb('workspaces?id=eq.' + s.wid, { method: 'PATCH', body: JSON.stringify({ name: body.wsName.trim() }) });
+      }
+      // update account display name
+      if (typeof body.name === 'string') {
+        await sb('accounts?id=eq.' + s.aid, { method: 'PATCH', body: JSON.stringify({ name: body.name.trim() }) });
+      }
+      const wr = await sb('workspaces?id=eq.' + s.wid + '&select=id,name');
+      const ws = (await wr.json())[0];
+      res.status(200).json({ ok: true, ws });
       return;
     }
 
